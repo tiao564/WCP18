@@ -13,4 +13,4 @@ avr-strip $EXE_FILE
 # 3) Build Hex File
 avr-objcopy -R .eeprom -O ihex $EXE_FILE $HEX_FILE
 # 4) Program Test File
-avrdude -p m1284p -c buspirate -P /dev/buspirate -U flash:w:$(HEX)
+avrdude -p m1284p -c buspirate -P /dev/buspirate -U flash:w:$HEX_FILE

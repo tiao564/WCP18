@@ -1,7 +1,7 @@
 /*Atmega1284p CPU Frequency*/
-#define F_CPU 20000000
+#define F_CPU 8000000UL
 
-#include <avr/io.h>
+#include <avr/io.>
 #include <util/delay.h>
 
 /*Concatenation Macros*/

@@ -1,8 +1,8 @@
 **************************************
-* 									 *
-*   WCP18 Industrial Multicopter	 *
+* 				     *
+*   WCP18 Industrial Multicopter     *
 *   Binghamton University (2106)     *
-*								     *
+*				     *
 **************************************
 
 Overview

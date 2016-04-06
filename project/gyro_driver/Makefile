@@ -15,52 +15,32 @@ CFLAGS := -g -Os -Wall -Wextra -std=gnu99
 # *** PATHS MUST EITHER BE ABSOLUTE OR RELATIVE TO THE MAKEFILE DIRECTORY! ***
 
 #The name you wish to give to the executable
-EXE := main
+EXE := gyro_test
 HEX := $(EXE).hex
 
 #Target file, the "main"
 #Ex/ "../main.c"
-MAIN := main.c
+MAIN := gyro_test.c
 
 default: $(EXE)
 
 all: program
 
-###
-#Add in -I../gyro_driver \
-##
-
-INCS = -I../vibration_sensor_driver \
-			 -I../ultrasonic_sensor_driver \
-			 -I../motor_driver \
-			 -I../encoder_driver \
- 			 -I../accel_driver \
-			 -I../i2c_lib \
+INCS = -I../i2c_lib \
        -I. \
+	   -I../lcd_driver \
 
-###
-#Add in ../gyro_driver \
-###
-SRCS = ../vibration_sensor_driver \
-			 ../ultrasonic_sensor_driver \
-			 ../motor_driver \
-			 ../encoder_driver \
-			 ../accel_driver \
-			 ../i2c_lib \
+SRCS = ../i2c_lib \
        . \
+	   ../lcd_driver \
+
 #VPATH will extract dependencies from the
 #listed source directories automatically	   
 VPATH = $(SRCS)
 
-####
-#gyro_driver.o \
-####
-OBJS = 	motor.o \
-				vibration.o \
-				encoder.o \
-				ultrasonic.o \
-				accelerometer_driver.o \
-				i2c_lib.o \
+OBJS = i2c_lib.o \
+       gyroscope.o \
+	   lcd_driver.o \
 	   
 %.o:%.c
 	$(CC) -c $(CFLAGS) -mmcu=$(MMCU) -D_FCPU=$(F_CPU) $(INCS) $<
@@ -72,13 +52,12 @@ $(EXE): $(OBJS) $(MAIN)
 #Builds hex file specified by the HEX variable	
 $(HEX): $(EXE)
 	avr-strip $(EXE)
-	sudo avr-objcopy -R .eeprom -O ihex $(EXE) $(HEX)
+	avr-objcopy -R .eeprom -O ihex $(EXE) $(HEX)
 	
 #Writes the hex file to the microncontroller flash memory
 program: $(HEX)
-	sudo avrdude -p m1284p -c buspirate -P /dev/ttyUSB0 -U flash:w:$(HEX) -v
-	#sudo avrdude -p m1284p -c avrisp2 -P /dev/ttyACM0 -U flash:w:$(HEX)
+	sudo avrdude -p m1284p -c buspirate -P /dev/ttyUSB0 -U flash:w:$(HEX)
 	
 #Removes the executable, hex file, and object files from PWD	
 clean:
-	rm -f $(EXE) $(HEX) $(OBJS) *~
+	rm $(EXE) $(HEX) $(OBJS)

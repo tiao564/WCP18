@@ -54,7 +54,7 @@ int main()
   
   /*Init accel*/
   bool accel_init = init_accel();
-  if ( accel_ini != ACCEL_INIT_SUCCESS )
+  if ( accel_init != ACCEL_INIT_SUCCESS )
   {
     //Failed to init
     abort = true;

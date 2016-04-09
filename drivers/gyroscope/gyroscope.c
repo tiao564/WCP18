@@ -4,7 +4,7 @@
  * DESCRIPTION:
  *  - Implementation of driver for the Adafruit L3GD20 Gyroscope.
  *    Intended for use with an AVR microcontroller. The custom
- *    "i2c_lib.h" API is required. See accelerometer_driver.h for
+ *    "i2c_lib.h" API is required. See gyroscope.h for
  *    further details.
  *
  *    *Based on the Adafruit Industries implementation developed by
@@ -227,9 +227,14 @@ bool read_gyroscope(gyro_data *data)
 	uint8_t xl = 0, xh = 0;
 	uint8_t yl = 0, yh = 0;
 	uint8_t zl = 0, zh = 0;
-	uint8_t x_tmp = 0;
-	uint8_t y_tmp = 0;
-	uint8_t z_tmp = 0;
+	
+	int16_t x_tmp = 0;
+	int16_t y_tmp = 0;
+	int16_t z_tmp = 0;
+	
+	accum x_out = 0.0;
+	accum y_out = 0.0;
+	accum z_out = 0.0;
 	
 	bool valid_reading = false;
 	uint8_t n = 6;
@@ -305,27 +310,27 @@ bool read_gyroscope(gyro_data *data)
 	switch(range)
 	{
 		case RANGE_245_DPS:
-			x_tmp = x_tmp*SENS_245DPS;
-			y_tmp = y_tmp*SENS_245DPS;
-			z_tmp = z_tmp*SENS_245DPS;
+			x_out = x_tmp*SENS_245DPS;
+			y_out = y_tmp*SENS_245DPS;
+			z_out = z_tmp*SENS_245DPS;
 			break;
 			
 		case RANGE_500_DPS:
-			x_tmp = x_tmp*SENS_500DPS;
-			y_tmp = y_tmp*SENS_500DPS;
-			z_tmp = z_tmp*SENS_500DPS;
+			x_out = x_tmp*SENS_500DPS;
+			y_out = y_tmp*SENS_500DPS;
+			z_out = z_tmp*SENS_500DPS;
 			break;
 			
 		case RANGE_2000_DPS:
-			x_tmp = x_tmp*SENS_2000DPS;
-			y_tmp = y_tmp*SENS_2000DPS;
-			z_tmp = z_tmp*SENS_2000DPS;
+			x_out = (accum)x_tmp*SENS_2000DPS;
+			y_out = (accum)y_tmp*SENS_2000DPS;
+			z_out = (accum)z_tmp*SENS_2000DPS;
 			break;
 	}
 
-	data->x = x_tmp;
-	data->y = y_tmp;
-	data->z = z_tmp;
+	data->x = x_out;
+	data->y = y_out;
+	data->z = z_out;
 	
 	return GYRO_READ_SUCCESS;
 }

@@ -11,6 +11,7 @@
  *     Kevin Townsend.
  *
  **************************************************************/
+ 
 #include "accelerometer.h"
 #include "i2c_lib.h"
 #include <avr/io.h>

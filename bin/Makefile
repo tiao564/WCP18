@@ -6,28 +6,42 @@ MMCU := atmega1284p
 CFLAGS := -g -Os -Wall -Wextra -std=gnu99
 
 #The name you wish to give to the executable
-EXE := test
+EXE :=
 HEX := $(EXE).hex
 
-MAIN := encoder_test.c
+MAIN :=
 
 default: $(EXE)
 
 all: program
 
-INCS = -I../lcd_driver \
-	   -I.
+INCS = -I ../drivers/i2c \
+       -I ../drivers/accelerometer \
+	   -I ../drivers/gyroscope \
+	   -I ../drivers/encoders
+	   -I ../drivers/motors \
+	   -I ../drivers/ultrasonic_sensor \
+	   -I ../drivers/vibration_sensor \
 
-SRCS = ../lcd_driver \
-	   .
+SRCS = ../drivers/i2c \
+       ../drivers/accelerometer \
+	   ../drivers/gyroscope \
+	   ../drivers/encoders
+	   ../drivers/motors \
+	   ../drivers/ultrasonic_sensor \
+	   ../drivers/vibration_sensor \
 
 #VPATH will extract dependencies from the
 #listed source directories automatically	   
 VPATH = $(SRCS)
 
-OBJS = lcd_driver.o \
-       itoa.o \
-	   encoder.o
+OBJS = i2c_lib.o \
+	   accelerometer.o \
+	   gyroscope.o \
+	   encoder.o \
+	   motor.o \
+	   ultrasonic.o \
+	   vibration.o \
 	   
 %.o:%.c
 	$(CC) -c $(CFLAGS) -mmcu=$(MMCU) -D_FCPU=$(F_CPU) $(INCS) $<

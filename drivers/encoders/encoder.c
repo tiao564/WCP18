@@ -35,6 +35,9 @@
 #define CS01 1
 #define CS00 0
 
+/*Encoder Sampling Rate*/
+#define SAMPLING_RATE 200 // 5000 samples/sec
+
 /*Misc.*/
 #define A 1
 #define B 0
@@ -118,12 +121,8 @@ void init_encoders(void)
 	TCCR0A = ((TCCR0A & CLEAR) | (1 << WGM01));
 	/*Set divide by 8 prescaler and activate*/
 	TCCR0B = ((TCCR0B & CLEAR) | (1 << CS01));
-}
-
-/*See encoder.h for details*/
-void set_sampling_rate(uint8_t rate)
-{
-	OCR0A = rate;
+	/*Set fixed encoder sampling rate*/
+	OCR0A = SAMPLING_RATE;
 }
 
 /*See encoder.h for details*/

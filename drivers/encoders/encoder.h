@@ -42,20 +42,10 @@ void init_encoders(void);
 /***************************************************************
  *
  * DESCRIPTION:
- *  - Sets the sampling frequency by dictating the rate at which
- *    the timer module generates interrupts. The maximum value of 
- *	  the input "rate" is 255. This value should be sufficiently
- *    large enough to avoid missing input changes.
- *
- **************************************************************/
-void set_sampling_rate(uint8_t rate);
-
-/***************************************************************
- *
- * DESCRIPTION:
- *  - Returns the value of OCR0A (set by the function above).
- *    Indicates how often the timer module generates an interrupt
- *    and samples the each of the encoder inputs.
+ *  - Returns the value of OCR0A which indicates how often the timer 
+ *    module generates an interrupt and samples the each of the encoder 
+ *    inputs.The SAMPLING_RATE macro is a fixed value and is defined
+ *    within encoder.c.
  *
  **************************************************************/
 uint8_t get_sampling_rate(void);

@@ -9,6 +9,9 @@
  *    equipped with TWI hardware. This driver supports functionality
  *    for reading device data only.
  *
+ *    *Based on Adafruit Industries implementation developed by
+ *     Kevin Townsend.
+ *
  **************************************************************/
  
 #ifndef GYROSCOPE_H_

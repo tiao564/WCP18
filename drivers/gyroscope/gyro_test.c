@@ -28,7 +28,7 @@ int main()
 	unsigned char y[9];
 	unsigned char z[9];
 	
-	if(init_code == GYRO_INIT_SUCCESS)
+	if(init_code == GYRO_INIT_PASS)
 	{
 		enable_autorange();
 		
@@ -37,7 +37,7 @@ int main()
 			bool status = read_gyroscope(&data);
 			
 			/*Check	device status*/
-			if(status == GYRO_READ_ERR)
+			if(status == GYRO_READ_FAIL)
 			{
 				lcd_erase();
 				lcd_puts("READ ERR");

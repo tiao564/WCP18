@@ -27,19 +27,17 @@
 #define MR_DATA_ACK 	   0x50
 #define MR_DATA_NACK	   0x58
 
-/*General Status Codes*/
-#define ENTRY_ERR 	  0
-#define ENTRY_SUCCESS 1
-
-/*Master Transmitter Mode Error Codes*/
-#define MT_WRITE_ERR	 0
-#define MT_WRITE_SUCCESS 1
-#define MT_REENTRY_ERR	 2	
-
-/*Master Receiver Mode Error Codes*/
-#define MR_READ_ERR		 0
-#define MR_READ_SUCCESS  1
-#define MR_REENTRY_ERR	 2
+/*I2C Error Codes*/
+typedef enum {
+	ENTRY_ERR,
+	ENTRY_PASS,
+	MT_WRITE_ERR,
+	MT_WRITE_PASS,
+	MT_REENTRY_ERR,
+	MR_READ_ERR,
+	MR_READ_PASS,
+	MR_REENTRY_ERR,
+}i2c_err;
 
 /***************************************************************
  *
@@ -62,7 +60,7 @@ void init_i2c(void);
  *    the slave receiver must be provided as an input.
  *
  **************************************************************/
-bool i2c_init_mt_mode(uint8_t slave_addr);
+i2c_err i2c_init_mt_mode(uint8_t slave_addr);
 
 /***************************************************************
  *
@@ -76,7 +74,7 @@ bool i2c_init_mt_mode(uint8_t slave_addr);
  *    cannot be called unless i2c_init_mt_mode() has been called.
  *
  **************************************************************/
-uint8_t i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start);
+i2c_err i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start);
 
 /***************************************************************
  *
@@ -88,7 +86,7 @@ uint8_t i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start);
  *    must be provided as input.
  *
  **************************************************************/ 
-bool i2c_init_mr_mode(uint8_t slave_addr);
+i2c_err i2c_init_mr_mode(uint8_t slave_addr);
 
 /***************************************************************
  *
@@ -103,7 +101,7 @@ bool i2c_init_mr_mode(uint8_t slave_addr);
  *    unless i2c_init_mr_mode() has been called.
  *
  **************************************************************/ 
-uint8_t i2c_mr_read(uint8_t *data, uint8_t bytes, bool repeated_start);
+i2c_err i2c_mr_read(uint8_t *data, uint8_t bytes, bool repeated_start);
 
 #endif
 /* End i2c_lib.h */

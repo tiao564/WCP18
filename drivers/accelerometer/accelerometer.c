@@ -17,7 +17,6 @@
 #include <avr/io.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <util/delay.h>
 
 /*Device Address*/
 #define ACCEL_ADDR 0x19
@@ -40,9 +39,10 @@
 #define Y_EN 1
 #define X_EN 0
 
-/*Transmission end selection*/
-#define REPEATED_START 1
-#define STOP_CONDITION 0
+//Repeated Start Cond
+#define START 1
+//Stop Condition
+#define STOP  0
 
 /*Automatically Increment Register Number*/
 #define AUTO_INCREMENT 7
@@ -50,9 +50,9 @@
 /*Misc. Size Definitions*/
 #define BYTE  	  1
 #define WORD  	  8
-#define WRITE 	  2
 #define REG   	  0
 #define VAL   	  1
+#define WRITE     2 
 #define HALF_WORD 4
 
 /*Buffer positions for read reg functions*/
@@ -70,60 +70,65 @@ static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n);
 /*Read a byte from n consecutive accelerometer registers into a buffer*/
 static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n)
 {
-	bool mt_init = i2c_init_mt_mode(ACCEL_ADDR);
-	/*Set the auto-increment bit*/
-	uint8_t _reg = (reg | (1 << AUTO_INCREMENT));
+	//store i2c error codes
+	i2c_err status;
 	
-	if(mt_init == ENTRY_SUCCESS)
+	status = i2c_init_mt_mode(ACCEL_ADDR);
+	/*Set the auto-increment bit*/
+	reg |= (1 << AUTO_INCREMENT);
+	
+	if(status == ENTRY_PASS)
 	{
 		/*Specify the first reg to read and enable auto-increment*/
-		uint8_t mt_write = i2c_mt_write(&_reg,BYTE,REPEATED_START);
+		status = i2c_mt_write(&reg,BYTE,START);
 		
-		if(mt_write == MT_WRITE_SUCCESS)
+		if(status == MT_WRITE_PASS)
 		{
-			bool mr_init = i2c_init_mr_mode(ACCEL_ADDR);
+			/*Enter master receiver mode*/
+			status = i2c_init_mr_mode(ACCEL_ADDR);
 		
-			if(mr_init == ENTRY_SUCCESS)
+			if(status == ENTRY_PASS)
 			{
 				/*Read n bytes into the buffer*/
-				uint8_t mr_read = i2c_mr_read(buff,n,STOP_CONDITION);
+				status = i2c_mr_read(buff,n,STOP);
 				
-				if(mr_read == MR_READ_SUCCESS)
+				if(status == MR_READ_PASS)
 				{
-					/*Indicate read was successful*/
-					return ACCEL_READ_SUCCESS;
+					return ACCEL_READ_PASS;
 				}
 			}
 		}
 	}
 	
-	return ACCEL_READ_ERR;
+	return ACCEL_READ_FAIL;
 }
 
 /*Write a accelerometer register*/
 static bool write_accel_reg(uint8_t reg, uint8_t value)
 {
+	//store i2c error codes
+	i2c_err status;
+	
 	/*Register and data buffer*/
-	uint8_t data[WRITE];
+	uint8_t data[2];
 	data[REG] = reg;
 	data[VAL] = value;
+	
 	/*Setup I2C write*/
-	bool mt_init = i2c_init_mt_mode(ACCEL_ADDR);
+	status = i2c_init_mt_mode(ACCEL_ADDR);
 	
-	if(mt_init == ENTRY_ERR) return ACCEL_WRITE_ERR;
-	
-	else
+	if(status == ENTRY_PASS)
 	{
 		/*Write the register*/
-		uint8_t mt_write = i2c_mt_write(data,WRITE,STOP_CONDITION);
+		status = i2c_mt_write(data,WRITE,STOP);
 		
-		if(mt_write == MT_WRITE_SUCCESS)
+		if(status == MT_WRITE_PASS)
 		{
-			return ACCEL_WRITE_SUCCESS;
+			return ACCEL_WRITE_PASS;
 		}
 	}
 	
-	return ACCEL_WRITE_ERR;
+	return ACCEL_WRITE_FAIL;
 }
 
 /* Accelerometer API */
@@ -139,14 +144,14 @@ bool init_accel(void)
 	/*Write the control register and enable accelerometer*/
 	bool status = write_accel_reg((uint8_t)CTRL_REG1_A,data);
 	/*Read back control register to ensure proper configuration*/
-	if(status == ACCEL_WRITE_SUCCESS)
+	if(status == ACCEL_WRITE_PASS)
 	{
 		read_n_consec_regs(&ctrl_val,(uint8_t)CTRL_REG1_A,1);
 		/*Return success if control register value is correct*/
-		if(ctrl_val == data) return ACCEL_INIT_SUCCESS;
+		if(ctrl_val == data) return ACCEL_INIT_PASS;
 	}
 
-	return ACCEL_INIT_FAILED;
+	return ACCEL_INIT_FAIL;
 }
 
 /*See accelerometer_driver.h for details*/
@@ -159,12 +164,12 @@ bool read_accel(accel_data *data)
 	uint8_t n = 6;
 	uint8_t buffer[n];
 	
-	/*Read 6 consecutive data regs beginning with OUT_X_L_A*/
+	/*Read 6 consecutive data regs beginning with OUT_X_L_A and ending OUT_Z_H_A*/
 	bool read_status = read_n_consec_regs(buffer,(uint8_t)OUT_X_L_A,n);
 
-	if(read_status == ACCEL_READ_ERR)
+	if(read_status == ACCEL_READ_FAIL)
 	{
-		return ACCEL_READ_ERR;
+		return ACCEL_READ_FAIL;
 	}
 	/*Assign register values to temp variables*/
 	xl = buffer[X_LO];
@@ -178,6 +183,6 @@ bool read_accel(accel_data *data)
 	data->y = (int16_t)(yl | (yh << WORD)) >> HALF_WORD;
 	data->z = (int16_t)(zl | (zh << WORD)) >> HALF_WORD;
 
-	return ACCEL_READ_SUCCESS;
+	return ACCEL_READ_PASS;
 }
 /*End accelerometer_driver.c*/

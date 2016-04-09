@@ -27,14 +27,14 @@ int main()
 	unsigned char y[9];
 	unsigned char z[9];
 
-	if(init_code == ACCEL_INIT_SUCCESS)
+	if(init_code == ACCEL_INIT_PASS)
 	{
 		while(1)
 		{
 			bool status = read_accel(&data);
 			
 			/*Check	device status*/
-			if(status == ACCEL_READ_ERR)
+			if(status == ACCEL_READ_FAIL)
 			{
 				lcd_erase();
 				lcd_puts("READ ERR");

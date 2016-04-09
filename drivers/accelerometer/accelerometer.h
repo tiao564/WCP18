@@ -21,12 +21,12 @@
 #include <stdbool.h>
 
 /*Accelerometer Status Codes*/
-#define ACCEL_INIT_FAILED     0
-#define ACCEL_INIT_SUCCESS    1
-#define ACCEL_READ_ERR	      0
-#define ACCEL_READ_SUCCESS    1
-#define ACCEL_WRITE_ERR	      0
-#define ACCEL_WRITE_SUCCESS   1
+#define ACCEL_INIT_FAIL  0
+#define ACCEL_INIT_PASS  1
+#define ACCEL_READ_FAIL	 0
+#define ACCEL_READ_PASS  1
+#define ACCEL_WRITE_FAIL 0
+#define ACCEL_WRITE_PASS 1
 
 /*Accelerometer Data Structure*/
 typedef struct {

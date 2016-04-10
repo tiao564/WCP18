@@ -272,7 +272,7 @@ bool read_gyroscope(gyro_data *data)
 		/*Check for saturation if auto-ranging is enabled*/
 		else
 		{
-			if((is_saturated(x_tmp)) | (is_saturated(y_tmp)) | (is_saturated(z_tmp)))
+			if((is_saturated(x_tmp)) || (is_saturated(y_tmp)) || (is_saturated(z_tmp)))
 			{
 				uint8_t ctrl_4 = 0;
 				//Reenable x,y,z data
@@ -315,15 +315,15 @@ bool read_gyroscope(gyro_data *data)
 	switch(range)
 	{
 		case RANGE_245_DPS:
-			x_out = x_tmp*SENS_245DPS;
-			y_out = y_tmp*SENS_245DPS;
-			z_out = z_tmp*SENS_245DPS;
+			x_out = (accum)x_tmp*SENS_245DPS;
+			y_out = (accum)y_tmp*SENS_245DPS;
+			z_out = (accum)z_tmp*SENS_245DPS;
 			break;
 			
 		case RANGE_500_DPS:
-			x_out = x_tmp*SENS_500DPS;
-			y_out = y_tmp*SENS_500DPS;
-			z_out = z_tmp*SENS_500DPS;
+			x_out = (accum)x_tmp*SENS_500DPS;
+			y_out = (accum)y_tmp*SENS_500DPS;
+			z_out = (accum)z_tmp*SENS_500DPS;
 			break;
 			
 		case RANGE_2000_DPS:

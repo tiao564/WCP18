@@ -156,7 +156,7 @@ static bool write_gyro_reg(uint8_t reg, uint8_t value)
 /*Check if the gyroscope reading is saturating*/
 static bool is_saturated(int16_t data)
 {
-	return (((data > MAX_READING) | (data < MIN_READING)) ? true : false);
+	return (((data > MAX_READING) || (data < MIN_READING)) ? true : false);
 }
 
 /* Gyroscope API */

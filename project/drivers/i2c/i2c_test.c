@@ -10,8 +10,8 @@
 #define BYTES 4
 
 /*End of transmission condition*/
-#define REPEATED_START 1
-#define STOP_CONDITION 0
+#define START 1
+#define STOP  0
 
 /*LED I/O*/ 
 #define LED  2
@@ -21,23 +21,21 @@ int main()
 	/*Configure LED as output*/
 	DDRC |= (1 << LED);
 
-	/*Response code of MT init function*/
-	bool mt_init_code;
-	/*Response code of MT write function*/
-	uint8_t mt_write_code;
+	//Store i2c error codes
+	i2c_err status;
 	
 	init_i2c();
 	
 	uint8_t data[BYTES] = {0x01,0x02,0x03,0x04};
 	
-	mt_init_code = i2c_init_mt_mode(TEST_SLAVE_ADDR);
+	status = i2c_init_mt_mode(TEST_SLAVE_ADDR);
 	
 	/*Write the data if initialize successfully*/
-	if(mt_init_code == MT_ENTRY_SUCCESS)
+	if(status == ENTRY_PASS)
 	{
-		mt_write_code = i2c_mt_write(data,BYTES,STOP_CONDITION);
+		status = i2c_mt_write(data,BYTES,STOP);
 
-		if(mt_write_code == MT_WRITE_SUCCESS)
+		if(status == MT_WRITE_PASS)
 		{
 			/*Light LED to indicate success*/
 			PORTC |= (1 << LED);

@@ -24,11 +24,11 @@ int main()
 	bool init_code = init_gyro(rng);
 	
 	/*Strings to contain gyroscope data*/
-	unsigned char x[9];
-	unsigned char y[9];
-	unsigned char z[9];
+	char x[9];
+	char y[9];
+	char z[9];
 	
-	if(init_code == GYRO_INIT_SUCCESS)
+	if(init_code == GYRO_INIT_PASS)
 	{
 		enable_autorange();
 		
@@ -37,7 +37,7 @@ int main()
 			bool status = read_gyroscope(&data);
 			
 			/*Check	device status*/
-			if(status == GYRO_READ_ERR)
+			if(status == GYRO_READ_FAIL)
 			{
 				lcd_erase();
 				lcd_puts("READ ERR");
@@ -49,18 +49,24 @@ int main()
 			dtostrf(data.x,4,3,x);
 			dtostrf(data.y,4,3,y);
 			dtostrf(data.z,4,3,z);
-			/*Terminate strings*/
 			x[8] = '\0';
 			y[8] = '\0';
 			z[8] = '\0';	
+			
 			/*Print data to LCD*/
+			lcd_puts("x: ");
 			lcd_puts(x);
 			lcd_goto_xy(1,0);
+			
+			lcd_puts("y: ");
 			lcd_puts(y);
 			_delay_ms(1000);
+			
 			lcd_erase();
+			lcd_puts("z: ");
 			lcd_puts(z);
 			_delay_ms(1000);
+			
 			/*Clear data between readings*/
 			data.x = 0;
 			data.y = 0;

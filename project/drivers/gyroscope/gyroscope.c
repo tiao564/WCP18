@@ -4,7 +4,7 @@
  * DESCRIPTION:
  *  - Implementation of driver for the Adafruit L3GD20 Gyroscope.
  *    Intended for use with an AVR microcontroller. The custom
- *    "i2c_lib.h" API is required. See accelerometer_driver.h for
+ *    "i2c_lib.h" API is required. See gyroscope.h for
  *    further details.
  *
  *    *Based on the Adafruit Industries implementation developed by
@@ -64,14 +64,14 @@
 #define AUTO_INCREMENT 7
 
 /*Transmission end selection*/
-#define REPEATED_START 1
-#define STOP_CONDITION 0
+#define START 1
+#define STOP  0
 
 /*Misc. Size Definitions*/
 #define BYTE  	  1
 #define WORD  	  8
 #define HALF_WORD 4
-#define WRITE 	  2
+#define WRITE     2
 #define REG	  	  0
 #define VAL	  	  1
 
@@ -96,62 +96,67 @@ static bool is_saturated(int16_t data);
 /*Read a byte from n consecutive gyroscope registers into a buffer*/
 static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n)
 {
-	bool mt_init = i2c_init_mt_mode(GYRO_ADDR);
-	/*Set the auto-increment bit*/
-	uint8_t _reg = (reg | (1 << AUTO_INCREMENT));
+	//store i2c error codes
+	i2c_err status;
 	
-	if(mt_init == ENTRY_SUCCESS)
+	status = i2c_init_mt_mode(GYRO_ADDR);
+	/*Set the auto-increment bit*/
+	reg |= (1 << AUTO_INCREMENT);
+	
+	if(status == ENTRY_PASS)
 	{
 		/*Specify the first reg to read and enable auto-increment*/
-		uint8_t mt_write = i2c_mt_write(&_reg,BYTE,REPEATED_START);
+		status = i2c_mt_write(&reg,BYTE,START);
 		
-		if(mt_write == MT_WRITE_SUCCESS)
+		if(status == MT_WRITE_PASS)
 		{
-			bool mr_init = i2c_init_mr_mode(GYRO_ADDR);
+			/*Enter master receiver mode*/
+			status = i2c_init_mr_mode(GYRO_ADDR);
 		
-			if(mr_init == ENTRY_SUCCESS)
+			if(status == ENTRY_PASS)
 			{
 				/*Read n bytes into the buffer*/
-				uint8_t mr_read = i2c_mr_read(buff,n,STOP_CONDITION);
+				status = i2c_mr_read(buff,n,STOP);
 				
-				if(mr_read == MR_READ_SUCCESS)
+				if(status == MR_READ_PASS)
 				{
-					/*Indicate read was successful*/
-					return GYRO_READ_SUCCESS;
+					return GYRO_READ_PASS;
 				}
 			}
 		}
 	}
 	
-	return GYRO_READ_ERR;
+	return GYRO_READ_FAIL;
 }
 
 /*Write a gyroscope register*/
 static bool write_gyro_reg(uint8_t reg, uint8_t value)
 {
+	//store i2c error codes
+	i2c_err status;
+	
 	/*Register and data buffer*/
-	uint8_t data[WRITE];
+	uint8_t data[2];
 	data[REG] = reg;
 	data[VAL] = value;
-	/*Setup I2C write*/
-	bool mt_init = i2c_init_mt_mode(GYRO_ADDR);
-
-	if(mt_init == ENTRY_ERR) return GYRO_WRITE_ERR;
 	
-	else
+	/*Setup I2C write*/
+	status = i2c_init_mt_mode(GYRO_ADDR);
+
+	if(status == ENTRY_PASS)
 	{
-		uint8_t mt_write = i2c_mt_write(data,WRITE,STOP_CONDITION);
+		status = i2c_mt_write(data,WRITE,STOP);
 		/*Verify successful write*/
-		if(mt_write == MT_WRITE_SUCCESS) return GYRO_WRITE_SUCCESS;
+		if(status == MT_WRITE_PASS) return GYRO_WRITE_PASS;
 	}
 	
-	return GYRO_WRITE_ERR;
+	return GYRO_WRITE_FAIL;
 }
 
 /*Check if the gyroscope reading is saturating*/
 static bool is_saturated(int16_t data)
 {
-	return (((data > MAX_READING) | (data < MIN_READING)) ? true : false);
+	return (((data > MAX_READING) || (data < MIN_READING)) ? true : false);
 }
 
 /* Gyroscope API */
@@ -184,7 +189,7 @@ bool init_gyro(gyro_range rng)
 
 	if((L3GD20_ID != chip_id) && (L3GD20H_ID != chip_id))
 	{
-		return GYRO_INIT_FAILED;
+		return GYRO_INIT_FAIL;
 	}
 	
 	/*Turn on gyro and enable x-axis, y-axis, and z-axis data*/
@@ -213,12 +218,12 @@ bool init_gyro(gyro_range rng)
 	/*Write CTRL_REG4 to configure full-scale range values*/
 	bool ctrl4_status = write_gyro_reg((uint8_t)CTRL_REG4,ctrl_4);
 	
-	if((ctrl1_status == GYRO_WRITE_ERR) || (ctrl4_status == GYRO_WRITE_ERR))
+	if((ctrl1_status == GYRO_WRITE_FAIL) || (ctrl4_status == GYRO_WRITE_FAIL))
 	{
-		return GYRO_INIT_FAILED;
+		return GYRO_INIT_FAIL;
 	}
 	
-	return GYRO_INIT_SUCCESS;
+	return GYRO_INIT_PASS;
 }
 
 /*See gyro_driver.h for details*/
@@ -227,9 +232,14 @@ bool read_gyroscope(gyro_data *data)
 	uint8_t xl = 0, xh = 0;
 	uint8_t yl = 0, yh = 0;
 	uint8_t zl = 0, zh = 0;
-	uint8_t x_tmp = 0;
-	uint8_t y_tmp = 0;
-	uint8_t z_tmp = 0;
+	
+	int16_t x_tmp = 0;
+	int16_t y_tmp = 0;
+	int16_t z_tmp = 0;
+	
+	accum x_out = 0.0;
+	accum y_out = 0.0;
+	accum z_out = 0.0;
 	
 	bool valid_reading = false;
 	uint8_t n = 6;
@@ -240,7 +250,7 @@ bool read_gyroscope(gyro_data *data)
 		/*Read 6 consecutive data registers beginning with OUT_X_L*/
 		bool read_status = read_n_consec_regs(buffer,(uint8_t)OUT_X_L,n);
 		
-		if(read_status == GYRO_READ_ERR) return GYRO_READ_ERR;
+		if(read_status == GYRO_READ_FAIL) return GYRO_READ_FAIL;
 		
 		/*Assign register values to temp variables*/
 		xl = buffer[X_LO];
@@ -262,7 +272,7 @@ bool read_gyroscope(gyro_data *data)
 		/*Check for saturation if auto-ranging is enabled*/
 		else
 		{
-			if((is_saturated(x_tmp)) | (is_saturated(y_tmp)) | (is_saturated(z_tmp)))
+			if((is_saturated(x_tmp)) || (is_saturated(y_tmp)) || (is_saturated(z_tmp)))
 			{
 				uint8_t ctrl_4 = 0;
 				//Reenable x,y,z data
@@ -305,28 +315,28 @@ bool read_gyroscope(gyro_data *data)
 	switch(range)
 	{
 		case RANGE_245_DPS:
-			x_tmp = x_tmp*SENS_245DPS;
-			y_tmp = y_tmp*SENS_245DPS;
-			z_tmp = z_tmp*SENS_245DPS;
+			x_out = (accum)x_tmp*SENS_245DPS;
+			y_out = (accum)y_tmp*SENS_245DPS;
+			z_out = (accum)z_tmp*SENS_245DPS;
 			break;
 			
 		case RANGE_500_DPS:
-			x_tmp = x_tmp*SENS_500DPS;
-			y_tmp = y_tmp*SENS_500DPS;
-			z_tmp = z_tmp*SENS_500DPS;
+			x_out = (accum)x_tmp*SENS_500DPS;
+			y_out = (accum)y_tmp*SENS_500DPS;
+			z_out = (accum)z_tmp*SENS_500DPS;
 			break;
 			
 		case RANGE_2000_DPS:
-			x_tmp = x_tmp*SENS_2000DPS;
-			y_tmp = y_tmp*SENS_2000DPS;
-			z_tmp = z_tmp*SENS_2000DPS;
+			x_out = (accum)x_tmp*SENS_2000DPS;
+			y_out = (accum)y_tmp*SENS_2000DPS;
+			z_out = (accum)z_tmp*SENS_2000DPS;
 			break;
 	}
 
-	data->x = x_tmp;
-	data->y = y_tmp;
-	data->z = z_tmp;
+	data->x = x_out;
+	data->y = y_out;
+	data->z = z_out;
 	
-	return GYRO_READ_SUCCESS;
+	return GYRO_READ_PASS;
 }
 /*End gyro_driver.c */

@@ -61,7 +61,7 @@ static bool get_twint_flag(void);
 static void twi_busy_wait(void);
 static void busy_wait_stop_cond(void);
 static bool check_repeated_start(void);
-static bool init_master_mode(uint8_t slave_addr, bool rw);
+static i2c_err init_master_mode(uint8_t slave_addr, bool rw);
 
 /*Start condition to establish MCU as the master*/
 static void send_start_cond(void)
@@ -124,7 +124,7 @@ static bool check_repeated_start(void)
 }
 
 /*Initializes either Master Transmitter or Master Receiver Mode*/
-static bool init_master_mode(uint8_t slave_addr, bool rw)
+static i2c_err init_master_mode(uint8_t slave_addr, bool rw)
 {
 	/*Determine if MCU already has control of bus or not*/
 	if(check_repeated_start() == NO_REPEATED_START)
@@ -150,7 +150,7 @@ static bool init_master_mode(uint8_t slave_addr, bool rw)
 		return ENTRY_ERR;
 	}
 	
-	return ENTRY_SUCCESS;
+	return ENTRY_PASS;
 }
 
 /* API Functions */
@@ -169,19 +169,19 @@ void init_i2c(void)
 }
 
 /*See i2c_lib.h for details*/
-bool i2c_init_mt_mode(uint8_t slave_addr)
+i2c_err i2c_init_mt_mode(uint8_t slave_addr)
 {
 	return init_master_mode(slave_addr,W);
 }
 
 /*See i2c_lib.h for details*/
-bool i2c_init_mr_mode(uint8_t slave_addr)
+i2c_err i2c_init_mr_mode(uint8_t slave_addr)
 {
 	return init_master_mode(slave_addr,R);
 }
 
 /*See i2c_lib.h for details*/
-uint8_t i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start)
+i2c_err i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start)
 {
 	for(uint8_t i = 0; i < bytes; i++)
 	{
@@ -214,11 +214,11 @@ uint8_t i2c_mt_write(uint8_t *data, uint8_t bytes, bool repeated_start)
 		busy_wait_stop_cond();
 	}
 	
-	return MT_WRITE_SUCCESS;
+	return MT_WRITE_PASS;
 }
 
 /*See i2c_lib.h for details*/
-uint8_t i2c_mr_read(uint8_t *data, uint8_t bytes, bool repeated_start)
+i2c_err i2c_mr_read(uint8_t *data, uint8_t bytes, bool repeated_start)
 {
 	uint8_t read_status = 0;
 	
@@ -272,6 +272,6 @@ uint8_t i2c_mr_read(uint8_t *data, uint8_t bytes, bool repeated_start)
 		busy_wait_stop_cond();
 	}
 	
-	return MR_READ_SUCCESS;
+	return MR_READ_PASS;
 }
 /* End of i2c_lib.c */

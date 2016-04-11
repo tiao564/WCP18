@@ -2,10 +2,10 @@
 #define F_CPU 8000000UL
 
 /* Accel, for tilt and movement */
-#include "accelerometer_driver.h"
+#include "accelerometer.h"
 
 /* Gyro for tilt */
-//#include "gyro_driver.h"
+#include "gyroscope.h"
 
 /* i2c for gyro and accel coms to ATMEGA */
 #include "i2c_lib.h"
@@ -54,7 +54,7 @@ int main()
   
   /*Init accel*/
   bool accel_init = init_accel();
-  if ( accel_init != ACCEL_INIT_SUCCESS )
+  if ( accel_init != ACCEL_INIT_PASS )
   {
     //Failed to init
     abort = true;
@@ -64,20 +64,21 @@ int main()
    * Gyro Init *
    ************/
   /* Gyro data struct */
-//  gyro_data g_data;
-//  g_data.x = 0;
-//  g_data.y = 0;
-//  g_data.z = 0;
-//
-//  /*Full-scale range value*/
-//  gyro_range rng = RANGE_245_DPS;
-//
-//  /*Init gyro*/
-//  bool gyro_init = init_gyro(rng);
-//  if(gyro_init != GYRO_INIT_SUCCESS)
-//  {
-//    abort = true;
-//  }
+  gyro_data g_data;
+  g_data.x = 0;
+  g_data.y = 0;
+  g_data.z = 0;
+
+  /*Full-scale range value*/
+  gyro_range rng = RANGE_245_DPS;
+
+  /*Init gyro*/
+  bool gyro_init = init_gyro(rng);
+  if(gyro_init != GYRO_INIT_PASS)
+  {
+    abort = true;
+  }
+  enable_autorange();
 
   /*******************
    * Ultrasonic Init *
@@ -98,7 +99,6 @@ int main()
    * Encoder Init *
    ***************/
   #define SAMPLE_RATE 200
-  set_sampling_rate(SAMPLE_RATE);
   init_encoders();
   clear_rotat_encoder_cnt();
   clear_trans_encoder_cnt();
@@ -172,7 +172,7 @@ int main()
   /****************************
    * If tilted too much abort *
    ***************************/
-  if( accel_status != ACCEL_READ_ERR )
+  if( accel_status != ACCEL_READ_FAIL )
     {
     if( a_data.x > ACCEL_LIMIT || a_data.y > ACCEL_LIMIT)
     {
@@ -182,7 +182,7 @@ int main()
   ////////////////
   //Keep this???//
   ////////////////
-  if( accel_status == ACCEL_READ_ERR )
+  if( accel_status == ACCEL_READ_FAIL )
   {
     abort = true;
   }
@@ -190,10 +190,10 @@ int main()
   /****************************
    * If tilted too much abort *
    ***************************/
-//  if( g_data.x > GYRO_LIMIT || g_data.y > GYRO_LIMIT )
-//  {
-//    abort = true;
-//  }
+  if( g_data.x > GYRO_LIMIT || g_data.y > GYRO_LIMIT )
+  {
+    abort = true;
+  }
 
   /*************
    * Motors on *
@@ -247,10 +247,10 @@ int main()
     /****************************
      * If tilted too much abort *
      ***************************/
-//`    if( g_data.x > GYRO_LIMIT || g_data.y > GYRO_LIMIT )
-//    {
-//      abort = true;
-//    }
+    if( g_data.x > GYRO_LIMIT || g_data.y > GYRO_LIMIT )
+    {
+      abort = true;
+    }
 
     /******************
      * Encoder Checks *

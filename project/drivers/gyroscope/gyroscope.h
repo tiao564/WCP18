@@ -9,6 +9,9 @@
  *    equipped with TWI hardware. This driver supports functionality
  *    for reading device data only.
  *
+ *    *Based on Adafruit Industries implementation developed by
+ *     Kevin Townsend.
+ *
  **************************************************************/
  
 #ifndef GYROSCOPE_H_
@@ -18,12 +21,12 @@
 #include <stdfix.h>
 
 /*Gyroscope Status Codes*/
-#define GYRO_INIT_FAILED   0
-#define GYRO_INIT_SUCCESS  1
-#define GYRO_READ_ERR	   0
-#define GYRO_READ_SUCCESS  1
-#define GYRO_WRITE_ERR	   0
-#define GYRO_WRITE_SUCCESS 1
+#define GYRO_INIT_FAIL  0
+#define GYRO_INIT_PASS  1
+#define GYRO_READ_FAIL	0
+#define GYRO_READ_PASS  1
+#define GYRO_WRITE_FAIL	0
+#define GYRO_WRITE_PASS 1
 
 /*Full-Scale Range Values*/
 typedef enum {

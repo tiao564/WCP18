@@ -8,7 +8,6 @@
 
 #define ROTAT_MAX   5000
 #define TRANS_MAX   5000
-#define SAMPLE_RATE 200
 
 /*From itoa.c*/
 extern char *num_to_str(int i);
@@ -23,11 +22,10 @@ int main()
 	uint16_t trans_cnt = 0;
 
 	initialize_LCD_driver();	
-	set_sampling_rate(SAMPLE_RATE);
 	init_encoders();
 
 	clear_rotat_encoder_cnt();	
-	//Read and print the current rotational encoder count
+	//Read the current rotational encoder count
 	while(rotat_cnt < ROTAT_MAX)
 	{
 		rotat_cnt = get_rotat_encoder_cnt();
@@ -37,7 +35,7 @@ int main()
 	lcd_puts("RE_DONE");	
 
 	clear_trans_encoder_cnt();
-	//Read and print the current translational encoder count
+	//Read the current translational encoder count
 	while(trans_cnt < TRANS_MAX)
 	{
 		trans_cnt = get_trans_encoder_cnt();

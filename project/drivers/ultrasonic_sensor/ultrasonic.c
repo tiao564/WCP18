@@ -51,9 +51,6 @@
 /*Mask to clear registers*/
 #define CLEAR 0x00
 
-/*Max measurable distance in cm*/
-#define TIMEOUT_DIST 2247.8505F // ~7.37 feet
-
 /*The speed of sound in centimeters/microsecond*/
 #define SPEED_SOUND 0.0343F
 
@@ -189,7 +186,8 @@ ISR(PCINT0_vect)
 	else
 	{
 		stop_counter();
-		pulse_width = TCNT3;
+		//Count only one direction
+		pulse_width = TCNT3 >> 1;
 		echo = true;
 	}
 }
@@ -232,7 +230,7 @@ accum get_obstacle_distance_cm(sensor id)
 		if(timeout) 
 		{
 			timeout = false;
-			return TIMEOUT_DIST;
+			return ULTRASONIC_TIMEOUT;
 		}
 	}
 	

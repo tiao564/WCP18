@@ -1,7 +1,7 @@
 /*Processor Clock Frequency*/
 #define F_CPU 8000000UL
 
-#include "accelerometer_driver.h"
+#include "accelerometer.h"
 #include "lcd_driver.h"
 #include <avr/io.h>
 #include <util/delay.h>
@@ -23,18 +23,18 @@ int main()
 	bool init_code = init_accel();
 
 	/*Strings to contain accel data*/
-	unsigned char x[9];
-	unsigned char y[9];
-	unsigned char z[9];
+	char x[9];
+	char y[9];
+	char z[9];
 
-	if(init_code == ACCEL_INIT_SUCCESS)
+	if(init_code == ACCEL_INIT_PASS)
 	{
 		while(1)
 		{
 			bool status = read_accel(&data);
 			
 			/*Check	device status*/
-			if(status == ACCEL_READ_ERR)
+			if(status == ACCEL_READ_FAIL)
 			{
 				lcd_erase();
 				lcd_puts("READ ERR");

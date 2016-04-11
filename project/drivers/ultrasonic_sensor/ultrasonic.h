@@ -27,6 +27,9 @@
 #define TRIGGER_B_POS  2 
 #define ECHO_B_POS     3
 
+/*Ultrasonic Sensor Error Code*/
+#define ULTRASONIC_TIMEOUT 0
+
 /*Sensor Identifiers*/
 typedef enum {A,B} sensor;
 

@@ -5,13 +5,13 @@ Obstacle Dectectance
   a pulse who's width corresponds to the distance of the obstacle.
   Therefore, it necessary to measure the width the output pulse.  
 
-             <----- Pulse Width ---->
+             		 <----- Pulse Width ---->
 			 +----------------------+
-			 |						|
-			 |						|
-	---------+						+---------> t
-			 ^						^
-			 |						|
-			 |						|
-		Clear Counter 				+---- Stop Timer
-		Start Timer						  Capture Counter Value
+			 |			|
+			 |			|
+		---------+			+---------> t
+			 ^			^
+			 |			|
+			 |			|
+		    Clear Counter 		+---- Stop Timer
+		    Start Timer			      Capture Counter Value

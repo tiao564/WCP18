@@ -20,6 +20,7 @@
 //Look at algorithm.h for function descriptions
 void stop_motors(void)
 {
+	//Brake motors and turn off motor led
 	brake_rotational_motor();
 	brake_translational_motor();
 	PORTA &= ~(1 << LED_MOTOR_POS);
@@ -28,11 +29,14 @@ void stop_motors(void)
 
 void initpins_check_enable(void)
 {
+	//Set input and output pins for enable and leds respectively
 	bool enable = 0;
 	DDRA &= ~(1 << ENABLE_POS);
 	DDRA |= (1 << LED_MOTOR_POS);
 	DDRA |= (1 << LED_COMPLETE_POS);
 	DDRA |= (1 << LED_ERROR_POS);
+
+	//busy wait for enable signal
 	while(enable != 1)
 	{
 		enable = PINA & ENABLE_MASK;
@@ -42,25 +46,36 @@ void initpins_check_enable(void)
 bool initialize(void)
 {
 	sei();
+
+	//*******IMU Board Initialization****
+	//initialize IMU board
 	gyro_range rng;
 	bool accel_code = init_accel();
 	bool gyro_code = init_gyro(rng);
+	enable_autorange();
+	//Make sure IMU initialization was successful
 	if(accel_code == ACCEL_INIT_FAILED || gyro_code == GYRO_INIT_FAIL)
 		return INIT_FAILED;
+	
+	//****Sensor Initialization******
 	init_ultrasonic_sensors();
 	init_motor_drivers();
 	init_vibration_sensors();
 	init_encoders();
+
+	//****Brake Motors and Set Motor Speeds
 	stop_motors();
 	set_rotational_motor_speed(DUTY_CYCLE);
 	set_translational_motor_speed(DUTY_CYCLE);
+
+	//Set Encoder Sampling rate
 	set_sampling_rate(ENCODER_SAMPLING_RATE);
-	enable_autorange();
 	return INIT_SUCCESS;
 }
 
 void send_signal_and_disable(bool code)
 {
+	//Turn on Error LED or Complete LED depending on exit code
 	if(code == ERROR)
 	{
 		PORTA |= (1 << LED_ERROR_POS);
@@ -69,6 +84,8 @@ void send_signal_and_disable(bool code)
 	{
 		PORTA |= (1 << LED_COMPLETE_POS);
 	}
+
+	//Turn off encoders,motors, sensors
 	clear_encoders();
 	stop_encoders();
 	disable_motors();
@@ -79,8 +96,11 @@ void send_signal_and_disable(bool code)
 bool check_obstacle_sensors(void)
 {
 	accum distance_A,distance_B;
+	//Get distances of the two ultrasonic sensors
 	distance_A = get_obstacle_distance_cm(A);
 	distance_B = get_obstacle_distance_cm(B);
+
+	//If either sensors timesout or is not in range, return a 0. If both in range, then return a 1
 	if((distance_A == TIMEOUT || distance_B == TIMEOUT) || (distance_A < LOWER_us_LIMIT) || (distance_A > UPPER_us_LIMIT) || (distance_B < LOWER_us_LIMIT) || (distance_B > UPPER_us_LIMIT))
 		return OBSTACLE_SENSOR_FAIL;
 	return OBSTACLE_SENSOR_SUCCESS;
@@ -88,6 +108,7 @@ bool check_obstacle_sensors(void)
 
 void start_motors_down(void)
 {
+	//Turn on motor light and start motor turning right and going down
 	PORTA |= (1 << LED_MOTOR_POS);
 	rotational_motor_right();
 	translational_motor_down();
@@ -95,12 +116,14 @@ void start_motors_down(void)
 
 void start_motors_up(void)
 {
+	//Turn on motor light and start motor turning left and going up
 	PORTA |= (1 << LED_MOTOR_POS);
 	rotational_motor_left();
 	translational_motor_up();
 }
 bool check_accel(void)
 {
+	//Check accelerometer and make sure data was read and all data is in range
 	accel_data data;
 	data.x = 0;
 	data.y = 0;
@@ -115,6 +138,7 @@ bool check_accel(void)
 
 bool check_gyro(void)
 {
+	//Check gyro and make sure data was read and  all data is in range
 	gyro_data data;
 	data.x = 0;
 	data.y = 0;
@@ -129,6 +153,7 @@ bool check_gyro(void)
 
 bool check_encoders(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans)
 {
+	//Checks that motors are moving, returns 0 if no movement, 1 otherwise
 	if((prev_rotat == rotat) || (prev_trans == trans))
 	{
 		return ERROR;
@@ -138,6 +163,7 @@ bool check_encoders(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint1
 
 bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans)
 {
+	//takes info from other checks and gives an error if any encoder or sensor fails 
 	bool encoder_chk = check_encoders(prev_rotat,rotat,prev_trans,trans);
 	if((encoder_chk == ERROR) || (check_obstacle_sensors() == OBSTACLE_SENSOR_FAIL) || (check_gyro == ERROR) || check_vs_med_a() | check_vs_med_b() || check_vs_slow_a() || check_vs_slow_b() || (check_accel() == ERROR))
 		return ERROR;
@@ -146,6 +172,7 @@ bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_tran
 
 void clear_encoders(void)
 {
+	//Clear the encoder counts
 	clear_trans_encoder_cnt();
 	clear_rotat_encoder_cnt();
 }

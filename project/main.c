@@ -72,6 +72,7 @@ int main()
 			{
 				while(trans_cnt < SIX_INCHES)
 				{
+					
 					prev_rotat_cnt = rotat_cnt;
 					prev_trans_cnt = trans_cnt;
 					rotat_cnt = get_rotat_encoder_cnt();

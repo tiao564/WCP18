@@ -16,7 +16,7 @@
 int main()
 {
 	//Busy wait for enable signal from user
-	check_enable();
+	init_pins_check_enable();
 
 	//Initialize intermediate variables
 
@@ -33,13 +33,15 @@ int main()
 
 	//Used to break out of loop, when complete
 	bool complete_flag = OFF;
-	//return of  check_sensors(), tells if a sensor was not in range
+	//return of  check_encoder_sensors(), tells if a sensor was not in range
 	bool sensor_chk;
 
 	//Encoder counts
 	uint16_t rotat_cnt = 0;
 	uint16_t trans_cnt = 0;
-	
+	uint16_t prev_rotat_cnt = 0;
+	uint16_t prev_trans_cnt = 0;
+	uint16_t error_trans_cnt = 0;
 	//If initialization fails, returns error to user
 	if(init_code == INIT_FAILED)
 	{
@@ -50,8 +52,8 @@ int main()
 		while(exit_code != ERROR and complete_flag != ON)
 		{
 			//Checks if it is able to start digging
-			obstacle = check_obstacle_sensors();
-			if(obstacle == OBSTACLE_SENSOR_FAIL)
+			sensor_chk = check_obstacle_sensors();
+			if(sensor_chk == ERROR)
 			{
 				exit_code = ERROR;
 				break;
@@ -61,7 +63,6 @@ int main()
 			if(motor_flag == MOTOR_OFF && direction == DOWN)
 			{
 				start_motors_down();
-				init_encoders();
 				motor_flag = MOTOR_ON;
 			}
 
@@ -71,11 +72,15 @@ int main()
 			{
 				while(trans_cnt < SIX_INCHES)
 				{
+					prev_rotat_cnt = rotat_cnt;
+					prev_trans_cnt = trans_cnt;
+					rotat_cnt = get_rotat_encoder_cnt();
 					trans_cnt = get_trans_encoder_cnt();
-					sensor_chk = check_sensors();
+					sensor_chk = check_encoder_sensors(prev_rotat_cnt,rotat_cnt,prev_trans_cnt,trans_cnt);
 					if(sensor_chk == ERROR)
 					{
 						stop_motors();
+						error_trans_cnt = get_trans_encoder_cnt();
 						motor_flag == MOTOR_OFF;
 						exit_code = ERROR;
 						break;
@@ -83,14 +88,13 @@ int main()
 				}
 				stop_motors();
 				motor_flag = MOTOR_OFF;
-				stop_clear_encoders();
+				clear_encoders();
 				direction = UP;
 			}
 
 			//Pulls drill back up and turns off at 6 inches
 			if(motor_flag == MOTOR_OFF && direction == UP)
 			{
-				init_encoders();
 				start_motors_up();
 				while(trans_cnt< SIX_INCHES)
 				{
@@ -98,13 +102,22 @@ int main()
 				}
 				stop_motors();
 				motor_flag = MOTOR_OFF;
-				stop_clear_encoders();
+				clear_encoders();
 				direction = DOWN;
 				complete_flag = ON;
 			}
 		}
 	}
-
+	if(exit_code == ERROR)
+	{
+		clear_encoders();
+		start_motors_up();
+		while(trans_cnt < error_trans_cnt)
+		{
+			trans_cnt = get_trans_encoder_cnt();
+		}
+		stop_motors();
+	}
 	//Sends signal to user to show completion or error occurred, disables everything
 	send_signal_and_disable(exit_code);
 	return 0;

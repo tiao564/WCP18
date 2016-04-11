@@ -26,7 +26,6 @@ VPATH = $(SRCS)
 
 OBJS = ultrasonic.o \
        lcd_driver.o \
-       itoa.o \
 
 %.o:%.c
 	$(CC) -c $(CFLAGS) -mmcu=$(MMCU) -D_FCPU=$(F_CPU) $<

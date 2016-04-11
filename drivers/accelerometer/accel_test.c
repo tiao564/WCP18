@@ -23,9 +23,9 @@ int main()
 	bool init_code = init_accel();
 
 	/*Strings to contain accel data*/
-	unsigned char x[9];
-	unsigned char y[9];
-	unsigned char z[9];
+	char x[9];
+	char y[9];
+	char z[9];
 
 	if(init_code == ACCEL_INIT_PASS)
 	{

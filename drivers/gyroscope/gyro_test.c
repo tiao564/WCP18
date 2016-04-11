@@ -24,9 +24,9 @@ int main()
 	bool init_code = init_gyro(rng);
 	
 	/*Strings to contain gyroscope data*/
-	unsigned char x[9];
-	unsigned char y[9];
-	unsigned char z[9];
+	char x[9];
+	char y[9];
+	char z[9];
 	
 	if(init_code == GYRO_INIT_PASS)
 	{

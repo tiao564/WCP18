@@ -15,26 +15,55 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+//Initialization status codes
 #define INIT_FAILED 0
 #define INIT_SUCCESS 1
+
+//status code to indicate if drilling is completely finished
+#define ON 1
+#define OFF 0
+
+//Status codes to indicate whether obstacle sensors readings are in range
 #define OBSTACLE_SENSOR_FAIL 0
 #define OBSTACLE_SENSOR_SUCCESS 1
+
+//Status codes for exit code(completed or exited with errors)
 #define ERROR 0
 #define COMPLETE 1
+
+//Status codes to indicate whether motors are on
 #define MOTOR_OFF 0
 #define MOTOR_ON 1
+
+//Status codes for directions of motors
 #define DOWN 0 
 #define UP 1
+
+//duty cycle for motors
 #define DUTY_CYCLE 128
+
+//Encoder count that equals 6"
 #define SIX_INCHES 200
+
+//ultrasonic limits 
 #define LOWER_us_LIMIT 10
 #define UPPER_us_LIMIT 15
-#define x_lower 10
-#define x_upper 15
-#define y_lower 10
-#define y_upper 15
-#define z_lower 10
-#define z_upper 15
+
+//accelerometer limits
+#define ax_lower 10
+#define ax_upper 15
+#define ay_lower 10
+#define ay_upper 15
+#define az_lower 10
+#define az_upper 15
+
+//gyro limits
+#define gx_lower 10
+#define gx_upper 15
+#define gy_lower 10
+#define gy_upper 15
+#define gz_lower 10
+#define gz_upper 15
 
 //Initializes accelerometer, motors,vibration,ultrasonic sesnors. Sets motor speeds. 
 //Returns a logic 1 if everything initialized correctly, 0 if it fails
@@ -67,6 +96,9 @@ bool check_sensors(void);
 //1 if in range, 0 if out or read error 
 bool check_accel(void);
 
+//Checks gyro values against limits to return to check_sensors()
+//Returns a 1 if in range, 0 if out of range or read error
+bool check_gyro(void);
 //Stops the encoders and clear their respective counts
 void stop_clear_encoders(void);
 #endif

@@ -1,11 +1,12 @@
 /*Logan Friedman
 
- *Main Algorithm for soil sampling mechanisms. Calls functiosn from algorithm.c
+ *Main Algorithm for soil sampling mechanisms. Calls functions from algorithm.c
  */
 
-
+//CPU clock speed
 #define F_CPU 8000000UL
 
+//Include files
 #include "algorithm.h"
 #include <avr/io.h>
 #include <stdbool.h>
@@ -18,12 +19,24 @@ int main()
 	check_enable();
 
 	//Initialize intermediate variables
+
+	//Code to return to user, COMPLETE if no errors, ERROR if drilling failed
 	bool exit_code = COMPLETE;
+	//Return from obstacle sensors, fails if not in range
 	bool obstacle;
+	//Direction of translation motor
 	bool direction = DOWN; 
+	//Flag to tell if motor is on
 	bool motor_flag;
+	//Checks if initialized correctly
 	bool init_code = initialize();
+
+	//Used to break out of loop, when complete
+	bool complete_flag = OFF;
+	//return of  check_sensors(), tells if a sensor was not in range
 	bool sensor_chk;
+
+	//Encoder counts
 	uint16_t rotat_cnt = 0;
 	uint16_t trans_cnt = 0;
 	
@@ -34,7 +47,7 @@ int main()
 	}
 	else
 	{
-		while(exit_code != ERROR)
+		while(exit_code != ERROR and complete_flag != ON)
 		{
 			//Checks if it is able to start digging
 			obstacle = check_obstacle_sensors();
@@ -65,6 +78,7 @@ int main()
 						stop_motors();
 						motor_flag == MOTOR_OFF;
 						exit_code = ERROR;
+						break;
 					}
 				}
 				stop_motors();
@@ -86,7 +100,7 @@ int main()
 				motor_flag = MOTOR_OFF;
 				stop_clear_encoders();
 				direction = DOWN;
-				break;
+				complete_flag = ON;
 			}
 		}
 	}

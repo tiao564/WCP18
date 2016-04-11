@@ -119,7 +119,6 @@ int main()
    **************************/
   /* Algorithm Definitions */
   //  MOST OF THESE ARE UNKNOWN //
-  #define ULTRASONIC_LIMIT    200
   #define ULTRA_OFFSET_LIMIT  50
   #define DISTANCE_TO_GROUND  400
   #define GYRO_LIMIT          200
@@ -143,8 +142,6 @@ int main()
   accum distanceB = get_obstacle_distance_cm(B);
   uint8_t AmB_dist;
   uint8_t BmA_dist;
-  uint8_t old_dist_A;
-  uint8_t fail_cnt = 0;
 
   //Encoder variables 
   uint16_t trans_cnt = 0;
@@ -215,33 +212,20 @@ int main()
     /*********************
      * Utlrasonic checks *
      ********************/
-    //We are not moving
-    if( (old_dist_A-get_obstacle_distance_cm(A) ) < ULTRASONIC_LIMIT )    
-    {
-      fail_cnt = fail_cnt+1;
-    }
-    else
-    {
-      fail_cnt = 0; 
-    }
-    old_dist_A = get_obstacle_distance_cm(A);
-
-    //We are still not moving, abort
-    if(fail_cnt >= 3)
-    {
-      abort = true;
-    }
-    
+   
     //Use distance sensors to read tilt
-    AmB_dist = get_obstacle_distance_cm(A) - get_obstacle_distance_cm(B);
-    BmA_dist = get_obstacle_distance_cm(B) - get_obstacle_distance_cm(A);
+    distanceA = get_obstacle_distance_cm(A);
+    distanceB = get_obstacle_distance_cm(B);
 
-    if(AmB_dist > ULTRA_OFFSET_LIMIT && AmB_dist < 200)
+    AmB_dist = distanceA - distanceB;
+    BmA_dist = distanceB - distanceA;
+
+    if(AmB_dist > ULTRA_OFFSET_LIMIT && AmB_dist < ULTRA_OFFSET_LIMIT)
     {
       abort = true;
     }
 
-    if( BmA_dist > ULTRA_OFFSET_LIMIT && BmA_dist < 200)
+    if( BmA_dist > ULTRA_OFFSET_LIMIT && BmA_dist < ULTRA_OFFSET_LIMIT)
     {
       abort = true;
     }

@@ -63,6 +63,11 @@
 #define Z_LO 4
 #define Z_HI 5
 
+/*Convert Data to Mili Gs*/
+#define MG_LSB (0.001F)
+/*Acceleration due to Gravity*/
+#define GRAVITY (9.806F)
+
 /* Static Function Prototypes */
 static bool write_accel_reg(uint8_t reg, uint8_t value);
 static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n);
@@ -160,6 +165,11 @@ bool read_accel(accel_data *data)
 	uint8_t xl = 0, xh = 0;
 	uint8_t yl = 0, yh = 0;
 	uint8_t zl = 0, zh = 0;
+	
+	int16_t x_tmp = 0;
+	int16_t y_tmp = 0;
+	int16_t z_tmp = 0;
+	
 	/*Number of data register to be read*/
 	uint8_t n = 6;
 	uint8_t buffer[n];
@@ -179,9 +189,13 @@ bool read_accel(accel_data *data)
 	zl = buffer[Z_LO];
 	zh = buffer[Z_HI];
 	/*Assemble 16-bit signed integers*/
-	data->x = (int16_t)(xl | (xh << WORD)) >> HALF_WORD;
-	data->y = (int16_t)(yl | (yh << WORD)) >> HALF_WORD;
-	data->z = (int16_t)(zl | (zh << WORD)) >> HALF_WORD;
+	x_tmp = (int16_t)(xl | (xh << WORD)) >> HALF_WORD;
+	y_tmp = (int16_t)(yl | (yh << WORD)) >> HALF_WORD;
+	z_tmp = (int16_t)(zl | (zh << WORD)) >> HALF_WORD;
+	/*Normalize data in terms of gravitional force*/
+	data->x = (accum)x_tmp * MG_LSB * GRAVITY;
+	data->y = (accum)y_tmp * MG_LSB * GRAVITY;
+	data->z = (accum)z_tmp * MG_LSB * GRAVITY;
 
 	return ACCEL_READ_PASS;
 }

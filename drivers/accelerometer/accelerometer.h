@@ -17,7 +17,7 @@
 #ifndef ACCELEROMETER_H_
 #define ACCELEROMETER_H_
 
-#include <stdint.h>
+#include <stdfix.h>
 #include <stdbool.h>
 
 /*Accelerometer Status Codes*/
@@ -30,9 +30,9 @@
 
 /*Accelerometer Data Structure*/
 typedef struct {
-	int16_t x;
-	int16_t y;
-	int16_t z;
+	accum x;
+	accum y;
+	accum z;
 }accel_data;
 
 /***************************************************************
@@ -55,8 +55,9 @@ bool init_accel(void);
  * DESCRIPTION:
  *  - Reads LSM303 Accelerometer x-axis, y-axis, and z-axis data
  *    into an "accel_data" data structure. Each data element is
- *    16 bits. A accel_data structure should be declared by the
- *    caller and a pointer to this structure passed to the function.
+ *    a signed fixed-point value. A accel_data structure should be 
+ *    declared by the caller and a pointer to this structure passed 
+ *	  to the function.
  *
  **************************************************************/
 bool read_accel(accel_data *data);

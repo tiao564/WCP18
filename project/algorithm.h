@@ -115,7 +115,7 @@ bool check_accel(void);
 bool check_gyro(void);
 
 //Checks previous encoder counts and new encoder counts to assure motors are moving. Returns 0 if counts are equal(motors not moving) 1 if counts are different
-bool check_encoders(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans);;
+bool check_encoders(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans);
 
 //clears the two encoder counts
 void clear_encoders(void);

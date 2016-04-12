@@ -4,7 +4,6 @@
 //Function descriptions of soil sampling algorithm
 
 
-#include "i2c_lib.h"
 #include "algorithm.h"
 #include "accelerometer_driver.h"
 #include "encoder.h"
@@ -49,10 +48,9 @@ bool initialize(void)
 
 	//*******IMU Board Initialization****
 	//initialize IMU board
-	gyro_range rng;
 	bool accel_code = init_accel();
-	bool gyro_code = init_gyro(rng);
-	enable_autorange();
+	bool gyro_code = init_gyro(RANGE_2000_DPS);
+	disable_autorange();
 	//Make sure IMU initialization was successful
 	if(accel_code == ACCEL_INIT_FAILED || gyro_code == GYRO_INIT_FAIL)
 		return INIT_FAILED;
@@ -67,9 +65,6 @@ bool initialize(void)
 	stop_motors();
 	set_rotational_motor_speed(DUTY_CYCLE);
 	set_translational_motor_speed(DUTY_CYCLE);
-
-	//Set Encoder Sampling rate
-	set_sampling_rate(ENCODER_SAMPLING_RATE);
 	return INIT_SUCCESS;
 }
 
@@ -89,7 +84,6 @@ void send_signal_and_disable(bool code)
 	clear_encoders();
 	stop_encoders();
 	disable_motors();
-	disable_autorange();
 	disable_vibration_sensors();
 }
 

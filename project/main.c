@@ -18,7 +18,6 @@ int main()
 	//Busy wait for enable signal from user
 	init_pins_check_enable();
 
-	//Initialize intermediate variables
 
 	//Code to return to user, COMPLETE if no errors, ERROR if drilling failed
 	bool exit_code = COMPLETE;

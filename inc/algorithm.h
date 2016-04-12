@@ -22,10 +22,7 @@
 #define LED_ERROR_POS 7 
 
 //Masks to configure pins
-#define ENABLE_MASK 1
-#define LED_MOTOR_MASK 2
-#define LED_COMPLETE_MASK 3
-#define LED_ERROR_MASK 4
+#define ENABLE_MASK 0x16
 //Initialization status codes
 #define INIT_FAILED 0
 #define INIT_SUCCESS 1

@@ -52,7 +52,7 @@ int main()
 			while(exit_code != ERROR && complete_flag != ON)
 			{
 				//Checks if it is able to start digging
-				sensor_chk = check_obstacle_sensors();
+				sensor_chk = check_encoder_sensors(0,1,0,1);
 				if(sensor_chk == ERROR)
 				{
 					exit_code = ERROR;

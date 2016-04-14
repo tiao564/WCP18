@@ -159,7 +159,7 @@ bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_tran
 {
 	//takes info from other checks and gives an error if any encoder or sensor fails 
 	bool encoder_chk = check_encoders(prev_rotat,rotat,prev_trans,trans);
-	if((encoder_chk == ERROR) || (check_obstacle_sensors() == OBSTACLE_SENSOR_FAIL) || (check_gyro() == ERROR) || check_vs_med_a() | check_vs_med_b() || check_vs_slow_a() || check_vs_slow_b() || (check_accel() == ERROR))
+	if((encoder_chk == ERROR) || (check_obstacle_sensors() == OBSTACLE_SENSOR_FAIL) || (check_gyro() == ERROR) || check_vs_med_a() || check_vs_med_b() || check_vs_slow_a() || check_vs_slow_b() || (check_accel() == ERROR))
 		return ERROR;
 	return COMPLETE;
 }

@@ -126,6 +126,12 @@ int main()
   #define MIN_MOVE_DISTANCE   200
   #define ENCODE_DONE         2000
 
+  while(1)
+  {
+  while(0)  //THIS IS A BUSY WAIT LOOP, IT WILL WAIT FOR A SIGNAL FROM CONTROLLER, NEED TO FIND WHAT SHOULD GO IN HERE
+  {
+    
+  }
   /* Variables */
   
   //Abortion flag
@@ -147,7 +153,10 @@ int main()
   uint16_t trans_cnt = 0;
   uint16_t old_r_cnt = 0;
   uint16_t old_t_cnt = 0;
- 
+  clear_rotat_encoder_cnt();
+  clear_trans_encoder_cnt();
+
+
   /*****************
    * End Variables *
    ****************/
@@ -306,6 +315,6 @@ int main()
   }
 
   brake_translational_motor();
-
+  }//while(1)
   return 0;
 } 

@@ -8,6 +8,7 @@
 
 //Include files
 #include "algorithm.h"
+#include "encoder.h"
 #include <avr/io.h>
 #include <stdbool.h>
 #include <util/delay.h>
@@ -37,8 +38,8 @@ int main()
 		bool sensor_chk;
 
 		//Encoder counts
-		uint16_t rotat_cnt = 0;
-		uint16_t trans_cnt = 0;
+		uint16_t curr_rotat_cnt = 0;
+		uint16_t curr_trans_cnt = 0;
 		uint16_t prev_rotat_cnt = 0;
 		uint16_t prev_trans_cnt = 0;
 		uint16_t error_trans_cnt = 0;
@@ -70,21 +71,21 @@ int main()
 				//Stops motors at the appropriate time, or if there is an error 
 				if(motor_flag == MOTOR_ON && direction == DOWN)
 				{
-					rotat_cnt = 0;
-					trans_cnt = 0;
-					while(trans_cnt < SIX_INCHES)
+					curr_rotat_cnt = 0;
+					curr_trans_cnt = 0;
+					while(curr_trans_cnt < SIX_INCHES)
 					{
 						
-						prev_rotat_cnt = rotat_cnt;
-						prev_trans_cnt = trans_cnt;
-						rotat_cnt = get_rotat_encoder_cnt();
-						trans_cnt = get_trans_encoder_cnt();
-						sensor_chk = check_encoder_sensors(prev_rotat_cnt,rotat_cnt,prev_trans_cnt,trans_cnt);
+						prev_rotat_cnt = curr_rotat_cnt;
+						prev_trans_cnt = curr_trans_cnt;
+						curr_rotat_cnt = get_rotat_encoder_cnt();
+						curr_trans_cnt = get_trans_encoder_cnt();
+						sensor_chk = check_encoder_sensors(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
 						if(sensor_chk == ERROR)
 						{
 							stop_motors();
 							error_trans_cnt = get_trans_encoder_cnt();
-							motor_flag == MOTOR_OFF;
+							motor_flag = MOTOR_OFF;
 							exit_code = ERROR;
 							break;
 						}
@@ -100,15 +101,15 @@ int main()
 				if(motor_flag == MOTOR_OFF && direction == UP)
 				{
 					start_motors_up();
-					motor_flag == MOTOR_ON;
+					motor_flag = MOTOR_ON;
 				}
 				if(motor_flag == MOTOR_ON && direction == UP)
 				{
-					trans_cnt = 0;
-					rotat_cnt = 0;
-					while(trans_cnt< SIX_INCHES)
+					curr_trans_cnt = 0;
+					curr_rotat_cnt = 0;
+					while(curr_trans_cnt< SIX_INCHES)
 					{
-						trans_cnt = get_trans_encoder_cnt();
+						curr_trans_cnt = get_trans_encoder_cnt();
 					}
 					stop_motors();
 					motor_flag = MOTOR_OFF;
@@ -121,12 +122,12 @@ int main()
 		if(exit_code == ERROR)
 		{
 			clear_encoders();
-			trans_cnt = 0;
+			curr_trans_cnt = 0;
 			start_motors_up();
 			motor_flag = MOTOR_ON;
-			while(trans_cnt < error_trans_cnt)
+			while(curr_trans_cnt < error_trans_cnt)
 			{
-				trans_cnt = get_trans_encoder_cnt();
+				curr_trans_cnt = get_trans_encoder_cnt();
 			}
 			stop_motors();
 			motor_flag = MOTOR_OFF;

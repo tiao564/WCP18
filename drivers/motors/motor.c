@@ -36,8 +36,8 @@
 #define CLEAR 0x00
 
 /*Minimum PWM value allowable by motors*/
-#define TRANS_SAFETY_PWM 77  // ~30% --> 3.6V
-#define ROTAT_SAFETY_PWM 140 // ~55% --> 6.6V
+#define TRANS_SAFETY_PWM 64  // ~25%
+#define ROTAT_SAFETY_PWM 64 // ~25%
 
 /*See motor.h for additional details*/
 void init_motor_drivers(void)

@@ -14,6 +14,7 @@
 /********************************************
 * 		          Includes                  *
  ********************************************/
+#include "system_ctl.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
@@ -53,7 +54,7 @@
 /*System Control Pulse Tolerance Factors*/
 #define TOLERANCE 10
 
-/*System Control Pulse Width Definitions*
+/*System Control Pulse Width Definitions
  *		  Base Values			*/
 #define SYS_OFF				1000
 #define SYS_ENABLE			2000
@@ -81,12 +82,12 @@ int8_t sys_cntl_state = SYS_OFF_STATE;
 /********************************************
  * 		Static Function Prototypes          *
  ********************************************/
-static bool rising_edge();
+static bool rising_edge(void);
 static void start_counter(void);
-static determine_sys_state(void);
+static void determine_sys_state(void);
 
 /*Determines if a rising edge occurs*/
-static bool rising_edge()
+static bool rising_edge(void)
 {
 	return (PIN(SYS_CNTL_PORT) & (1 << SYS_CNTL));
 }
@@ -95,7 +96,7 @@ static bool rising_edge()
 static void start_counter(void)
 {
 	//Turn on & set divide by 8 prescaler
-	TCCR1B |= (1 << CS11) //1 MHz clk
+	TCCR1B |= (1 << CS11); //1 MHz clk
 }
 
 /*Disable Timer/Counter1*/
@@ -105,7 +106,7 @@ static void stop_counter(void)
 }
 
 /*Assess system control pulse width to determine state*/
-static determine_sys_state(void)
+static void determine_sys_state(void)
 {
 	//Enter Shutdown State
 	if((sys_ctl_pulse_width >= SYS_OFF_LOWER) &&
@@ -155,13 +156,8 @@ ISR(PCINT2_vect)
 		stop_counter();
 		sys_ctl_pulse_width = TCNT1;
 		determine_sys_state();
-		/*TODO: Add shutdown code here?? 
-		 * 
-		 *	<insert motor shut down code>
-		 *  <insert notification LED code>
-		 */
+		/*TODO: Add shutdown code here??*/
 	}
-	
 	//restore interrupts
 	sei();
 }
@@ -170,7 +166,7 @@ ISR(PCINT2_vect)
  * 		        API Functions               *
  ********************************************/
 /*See system_ctl.h for details*/
-void init_system_ctl(void)
+void init_system_cntl(void)
 {
 	sei();
 	//Configure system control pin as input

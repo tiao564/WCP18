@@ -43,7 +43,9 @@ void init_system_cntl(void);
  
 /***************************************************************
  * DESCRIPTION:
- *  -  
+ *  - Returns the current system state as dictated by the remote
+ *    control input. The three possible system state inputs are
+ *    defined above.
  *
  **************************************************************/
 int8_t get_sys_cntl_state(void);

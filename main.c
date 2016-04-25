@@ -8,6 +8,7 @@
 
 //Include files
 #include "algorithm.h"
+#include "system_ctl.h"
 #include "encoder.h"
 #include <avr/io.h>
 #include <stdbool.h>
@@ -50,18 +51,19 @@ int main()
 		}
 		else
 		{
-			while(exit_code != ERROR && complete_flag != ON)
+			while(exit_code != ERROR && complete_flag != ON && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 			{
 				//Checks if it is able to start digging
 				sensor_chk = check_encoder_sensors(0,1,0,1);
-				if(sensor_chk == ERROR)
+				if(sensor_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 				{
+					PORTA |= (1 << LED_ERROR_POS);
 					exit_code = ERROR;
 					break;
 				}
 
 				//drill begins downward motion turning to the right, starts the encoders
-				if(motor_flag == MOTOR_OFF && direction == DOWN)
+				if(motor_flag == MOTOR_OFF && direction == DOWN && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 				{
 					start_motors_down();
 					motor_flag = MOTOR_ON;
@@ -69,11 +71,11 @@ int main()
 
 				//While drilling down, checking sensors and getting encoder counts to keep track of distance
 				//Stops motors at the appropriate time, or if there is an error 
-				if(motor_flag == MOTOR_ON && direction == DOWN)
+				if(motor_flag == MOTOR_ON && direction == DOWN && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 				{
 					curr_rotat_cnt = 0;
 					curr_trans_cnt = 0;
-					while(curr_trans_cnt < SIX_INCHES)
+					while(curr_trans_cnt < SIX_INCHES && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 					{
 						
 						prev_rotat_cnt = curr_rotat_cnt;
@@ -81,8 +83,9 @@ int main()
 						curr_rotat_cnt = get_rotat_encoder_cnt();
 						curr_trans_cnt = get_trans_encoder_cnt();
 						sensor_chk = check_encoder_sensors(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
-						if(sensor_chk == ERROR)
+						if(sensor_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 						{
+							PORTA &= ~(1 << LED_ERROR_POS);
 							stop_motors();
 							error_trans_cnt = get_trans_encoder_cnt();
 							motor_flag = MOTOR_OFF;
@@ -90,7 +93,7 @@ int main()
 							break;
 						}
 					}
-					if(exit_code == ERROR) break;
+					if(exit_code == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE) break;
 					stop_motors();
 					motor_flag = MOTOR_OFF;
 					clear_encoders();
@@ -98,16 +101,17 @@ int main()
 				}
 
 				//Pulls drill back up and turns off at 6 inches
-				if(motor_flag == MOTOR_OFF && direction == UP)
+				if(motor_flag == MOTOR_OFF && direction == UP && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 				{
+					PORTA |= (1 << LED_COMPLETE_POS);
 					start_motors_up();
 					motor_flag = MOTOR_ON;
 				}
-				if(motor_flag == MOTOR_ON && direction == UP)
+				if(motor_flag == MOTOR_ON && direction == UP && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 				{
 					curr_trans_cnt = 0;
 					curr_rotat_cnt = 0;
-					while(curr_trans_cnt< SIX_INCHES)
+					while(curr_trans_cnt< SIX_INCHES && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 					{
 						curr_trans_cnt = get_trans_encoder_cnt();
 					}
@@ -119,13 +123,20 @@ int main()
 				}
 			}
 		}
-		if(exit_code == ERROR)
+		if(get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 		{
+			stop_motors();
+			motor_flag = MOTOR_OFF;
+			exit_code = ERROR;
+		}
+		if(exit_code == ERROR && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
+		{
+			PORTA |= (1 << LED_ERROR_POS);
 			clear_encoders();
 			curr_trans_cnt = 0;
 			start_motors_up();
 			motor_flag = MOTOR_ON;
-			while(curr_trans_cnt < error_trans_cnt)
+			while(curr_trans_cnt < error_trans_cnt && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 			{
 				curr_trans_cnt = get_trans_encoder_cnt();
 			}
@@ -133,8 +144,8 @@ int main()
 			motor_flag = MOTOR_OFF;
 		}
 		//Sends signal to user to show completion or error occurred, disables everything
-		send_signal_and_disable(exit_code);
+		disable(exit_code);
 		trip_count += 1;
-	return 0;
 	}
+	return 0;
 }

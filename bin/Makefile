@@ -34,6 +34,7 @@ INCS = -I../drivers/vibration_sensor \
  			 -I../drivers/accelerometer \
 			 -I../drivers/i2c \
 			 -I../drivers/gyroscope \
+			 -I../drivers/system \
        -I.\
 
 SRCS = ../drivers/vibration_sensor \
@@ -44,6 +45,7 @@ SRCS = ../drivers/vibration_sensor \
 			 ../drivers/accelerometer \
 			 ../drivers/i2c \
 			 ../drivers/gyroscope \
+			 ../drivers/system \
        . \
 #VPATH will extract dependencies from the
 #listed source directories automatically	   
@@ -55,6 +57,7 @@ OBJS = 	motor.o \
 				ultrasonic.o \
 				algorithm.o \
 				gyroscope.o \
+				system_ctl.o \
 				accelerometer.o \
 				i2c_lib.o \
 				 

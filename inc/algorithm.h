@@ -84,8 +84,8 @@ bool check_obstacle_sensors(void);
 //Busy waits for enable signal, doesn't exit until it receives it 
 void init_pins_check_enable(void);
 
-//Disables drivers and sends a signal to user based on exit code (error vs completion)
-void send_signal_and_disable(bool code);
+//Disables drivers and turns off correct LED (error vs completion)
+void disable(bool code);
 
 //Starts the translational motor going down, and the rotational motor to turn right
 void start_motors_down(void);

@@ -6,6 +6,7 @@
 
 #include "algorithm.h"
 #include "accelerometer.h"
+#include "system_ctl.h"
 #include "encoder.h"
 #include "motor.h"
 #include "ultrasonic.h"
@@ -19,27 +20,25 @@
 //Look at algorithm.h for function descriptions
 void stop_motors(void)
 {
-	//Brake motors and turn off motor led
+	//Brake motors
 	brake_rotational_motor();
 	brake_translational_motor();
-	PORTA &= ~(1 << LED_MOTOR_POS);
 }
 
 
 void init_pins_check_enable(void)
 {
 	//Set input and output pins for enable and leds respectively
-	bool enable = 0;
-	DDRA &= ~(1 << ENABLE_POS);
+	init_system_cntl();
 	DDRA |= (1 << LED_MOTOR_POS);
 	DDRA |= (1 << LED_COMPLETE_POS);
 	DDRA |= (1 << LED_ERROR_POS);
 
 	//busy wait for enable signal
-	while(enable != 1)
+	while(get_sys_cntl_state() != SYS_ENABLE_STATE)
 	{
-		enable = PINA & ENABLE_MASK;
 	}
+	PORTA |= (1 << LED_MOTOR_POS);
 }
 
 bool initialize(void)
@@ -68,16 +67,17 @@ bool initialize(void)
 	return INIT_SUCCESS;
 }
 
-void send_signal_and_disable(bool code)
+void disable(bool code)
 {
+	PORTA &= ~(1 << LED_MOTOR_POS);
 	//Turn on Error LED or Complete LED depending on exit code
 	if(code == ERROR)
 	{
-		PORTA |= (1 << LED_ERROR_POS);
+		PORTA &= ~(1 << LED_ERROR_POS);
 	}
 	else
 	{
-		PORTA |= (1 << LED_COMPLETE_POS);
+		PORTA &= ~(1 << LED_COMPLETE_POS);
 	}
 
 	//Turn off encoders,motors, sensors
@@ -102,16 +102,14 @@ bool check_obstacle_sensors(void)
 
 void start_motors_down(void)
 {
-	//Turn on motor light and start motor turning right and going down
-	PORTA |= (1 << LED_MOTOR_POS);
+	//start motor turning right and going down
 	rotational_motor_right();
 	translational_motor_down();
 }
 
 void start_motors_up(void)
 {
-	//Turn on motor light and start motor turning left and going up
-	PORTA |= (1 << LED_MOTOR_POS);
+	//start motor turning left and going up
 	rotational_motor_left();
 	translational_motor_up();
 }

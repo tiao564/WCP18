@@ -38,6 +38,7 @@ int main()
 		//return of  check_encoder_sensors(), tells if a sensor was not in range
 		bool sensor_chk;
 
+		bool manual_ovverride_flag = OFF;
 		//Encoder counts
 		uint16_t curr_rotat_cnt = 0;
 		uint16_t curr_trans_cnt = 0;
@@ -85,7 +86,7 @@ int main()
 						sensor_chk = check_encoder_sensors(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
 						if(sensor_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 						{
-							PORTA &= ~(1 << LED_ERROR_POS);
+							PORTA |= (1 << LED_ERROR_POS);
 							stop_motors();
 							error_trans_cnt = get_trans_encoder_cnt();
 							motor_flag = MOTOR_OFF;
@@ -114,6 +115,17 @@ int main()
 					while(curr_trans_cnt< SIX_INCHES && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 					{
 						curr_trans_cnt = get_trans_encoder_cnt();
+						if(get_sys_cntl_state() == SYS_MANUAL_OVVERRIDE_STATE)
+						{
+							stop_motors();
+							error_trans_cnt = get_trans_encoder_cnt();
+							motor_flag = MOTOR_OFF;
+							exit_code = ERROR;
+							PORTA &= ~(1 << LED_COMPLETE_POS);
+							PORTA |= (1 << LED_ERROR_POS);
+							break;
+						}
+
 					}
 					stop_motors();
 					motor_flag = MOTOR_OFF;
@@ -126,10 +138,32 @@ int main()
 		if(get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 		{
 			stop_motors();
+			clear_encoders();
+			_delay_ms(10000);
+			if(get_sys_cntl_state() == SYS_OFF_STATE)
+			{
+				exit(0);
+			}
+			else
+			{
+				curr_trans_cnt = 0;
+				motor_flag = MOTOR_ON;
+				start_motors_up();
+				while(curr_trans_cnt < error_trans_cnt)
+				{
+					curr_trans_cnt = get_trans_encoder_cnt();
+				}
+				stop_motors();
+				MOTOR_FLAG = MOTOR_OFF;
+				exit_code = ERROR;
+				disable(exit_code);
+				manual_override_flag = ON;
+				exit(0);
+			}
 			motor_flag = MOTOR_OFF;
 			exit_code = ERROR;
 		}
-		if(exit_code == ERROR && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
+		if(exit_code == ERROR && manual_ovverride_flag = ON)
 		{
 			PORTA |= (1 << LED_ERROR_POS);
 			clear_encoders();
@@ -144,7 +178,8 @@ int main()
 			motor_flag = MOTOR_OFF;
 		}
 		//Sends signal to user to show completion or error occurred, disables everything
-		disable(exit_code);
+		if(manual_override_flag = OFF)
+			disable(exit_code);
 		trip_count += 1;
 	}
 	return 0;

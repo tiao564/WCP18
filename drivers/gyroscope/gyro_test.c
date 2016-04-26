@@ -60,12 +60,12 @@ int main()
 			
 			lcd_puts("y: ");
 			lcd_puts(y);
-			_delay_ms(1000);
+			_delay_ms(5000);
 			
 			lcd_erase();
 			lcd_puts("z: ");
 			lcd_puts(z);
-			_delay_ms(1000);
+			_delay_ms(5000);
 			
 			/*Clear data between readings*/
 			data.x = 0;

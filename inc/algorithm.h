@@ -53,24 +53,15 @@
 //Encoder limit (6" count)
 #define SIX_INCHES 200
 //ultrasonic limits 
-#define LOWER_US_LIMIT 10
-#define UPPER_US_LIMIT 15
+#define LOWER_US_LIMIT -17
+#define UPPER_US_LIMIT 17
 
 //accelerometer limits
-#define AX_LOWER 10
-#define AX_UPPER 15
-#define AY_LOWER 10
-#define AY_UPPER 15
-#define AZ_LOWER 10
-#define AZ_UPPER 15
-
+#define ACCEL_LOWER -5
+#define ACCEL_UPPER 5
 //gyro limits
-#define GX_LOWER 10
-#define GZ_UPPER 15
-#define GY_LOWER 10
-#define GY_UPPER 15
-#define GZ_LOWER 10
-#define GZ_UPPER 15
+#define GYRO_LOWER -4
+#define GYRO_UPPER 4
 
 //Initializes accelerometer, motors,vibration,ultrasonic sesnors. Sets motor speeds. 
 //Returns a logic 1 if everything initialized correctly, 0 if it fails

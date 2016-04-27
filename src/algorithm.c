@@ -17,6 +17,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+//Accounts for different height 
+#define PING_OFFSET 2.75
 //Look at algorithm.h for function descriptions
 void stop_motors(void)
 {
@@ -92,9 +94,9 @@ bool check_obstacle_sensors(void)
 {
 	accum distance_A,distance_B;
 	//Get distances of the two ultrasonic sensors
-	distance_A = get_obstacle_distance_cm(A);
+	distance_A = get_obstacle_distance_cm(A) - PING_OFFSET;
 	distance_B = get_obstacle_distance_cm(B);
-
+	
 	//If either sensors timesout or is not in range, return a 0. If both in range, then return a 1
 	if((distance_A == ULTRASONIC_TIMEOUT || distance_B == ULTRASONIC_TIMEOUT) || (distance_A < LOWER_US_LIMIT) || (distance_A > UPPER_US_LIMIT) || (distance_B < LOWER_US_LIMIT) || (distance_B > UPPER_US_LIMIT))
 		return OBSTACLE_SENSOR_FAIL;
@@ -125,7 +127,7 @@ bool check_accel(void)
 	data.y = 0;
 	data.z = 0;
 	bool status = read_accel(&data);
-	if((status == ACCEL_READ_FAIL) || (data.x < AX_LOWER) || (data.x > AX_UPPER) || (data.y < AY_LOWER) || (data.y > AY_UPPER) || (data.z < AZ_LOWER) || (data.z > AZ_UPPER))
+	if((status == ACCEL_READ_FAIL) || (data.x < ACCEL_LOWER) || (data.x > ACCEL_UPPER) || (data.y < ACCEL_LOWER) || (data.y > ACCEL_UPPER))
 	{
 		return ERROR;
 	}
@@ -140,7 +142,7 @@ bool check_gyro(void)
 	data.y = 0;
 	data.z = 0;
 	bool status = read_gyroscope(&data);
-	if((status == GYRO_READ_FAIL) || (data.x < GY_LOWER) || (data.x > GY_UPPER) || (data.y < GY_LOWER) || (data.y > GY_UPPER) || (data.z < GZ_LOWER) || (data.z > GZ_UPPER))
+	if((status == GYRO_READ_FAIL) || (data.x < GYRO_LOWER) || (data.x > GYRO_UPPER) || (data.y < GYRO_LOWER) || (data.y > GYRO_UPPER) || (data.z < GYRO_LOWER) || (data.z > GYRO_UPPER))
 	{
 		return ERROR;
 	}

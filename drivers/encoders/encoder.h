@@ -91,7 +91,7 @@ void clear_rotat_encoder_cnt(void);
  *    and starting Timer/Counter0.
  *
  **************************************************************/
-void start_encoders(void)
+void start_encoders(void);
 
 /***************************************************************
  *

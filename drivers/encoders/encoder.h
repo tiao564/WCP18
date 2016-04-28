@@ -87,6 +87,15 @@ void clear_rotat_encoder_cnt(void);
 /***************************************************************
  *
  * DESCRIPTION:
+ *  - Enables encoders by turning on timer generated interrupts
+ *    and starting Timer/Counter0.
+ *
+ **************************************************************/
+void start_encoders(void)
+
+/***************************************************************
+ *
+ * DESCRIPTION:
  *  - Disables encoders by turning off Timer/Counter0 and timer
  *    generated interrupts.
  *

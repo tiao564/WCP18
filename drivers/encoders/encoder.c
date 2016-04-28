@@ -115,12 +115,9 @@ void init_encoders(void)
 	/*Configure rotational encoder ports as inputs*/
 	DDR(ROTAT_ENCODER_A_PORT) &= ~(1 << ROTAT_ENCODER_A_POS);
 	DDR(ROTAT_ENCODER_B_PORT) &= ~(1 << ROTAT_ENCODER_B_POS);
-	/*Enable timer interrupts*/
-	TIMSK0 |= (1 << OCIE0A);
 	/*Set CTC mode*/
 	TCCR0A = ((TCCR0A & CLEAR) | (1 << WGM01));
-	/*Set divide by 8 prescaler and activate*/
-	TCCR0B = ((TCCR0B & CLEAR) | (1 << CS01));
+	TCCR0B = TCCR0B & CLEAR;
 	/*Set fixed encoder sampling rate*/
 	OCR0A = SAMPLING_RATE;
 }
@@ -180,6 +177,15 @@ void clear_trans_encoder_cnt(void)
 void clear_rotat_encoder_cnt(void)
 {
 	rotat_encoder_cnt = 0;
+}
+
+/*See encoder.h for details*/
+void start_encoders(void)
+{
+	/*Enable timer interrupts*/
+	TIMSK0 |= (1 << OCIE0A);
+	/*Start counter with divide by 8 prescaler*/
+	TCCR0B |= (1 << CS01);
 }
 
 /*See encoder.h for details*/

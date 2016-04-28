@@ -114,7 +114,7 @@ bool check_obstacle_sensors(bool initial)
 void start_motors_down(void)
 {
 	//start motor turning right and going down
-	//start_encoders();
+	start_encoders();
 	rotational_motor_right();
 	translational_motor_down();
 	
@@ -123,7 +123,7 @@ void start_motors_down(void)
 void start_motors_up(void)
 {
 	//start motor turning left and going up
-	//start_encoders();
+	start_encoders();
 	rotational_motor_left();
 	translational_motor_up();
 }

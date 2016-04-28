@@ -34,7 +34,7 @@
 /*System Control Input Pin Location*/
 #define SYS_CNTL 3
 
-/*Pin Change Interrupt PortA*/
+/*Pin Change Interrupt PortC*/
 #define PCIE2 2
 
 /*Pin Change Interrupt 19*/
@@ -77,13 +77,14 @@
 volatile uint16_t sys_ctl_pulse_width = 0;
 
 /*Holds Current System Control State*/
-int8_t sys_cntl_state = SYS_OFF_STATE;
+volatile int8_t sys_cntl_state = SYS_OFF_STATE;
 
 /********************************************
  * 		Static Function Prototypes          *
  ********************************************/
 static bool rising_edge(void);
 static void start_counter(void);
+static void stop_counter(void);
 static void determine_sys_state(void);
 
 /*Determines if a rising edge occurs*/
@@ -148,6 +149,7 @@ ISR(PCINT2_vect)
 	if(rising_edge())
 	{
 		TCNT1 = 0;
+		sys_ctl_pulse_width = 0;
 		start_counter();
 	}
 	
@@ -156,7 +158,6 @@ ISR(PCINT2_vect)
 		stop_counter();
 		sys_ctl_pulse_width = TCNT1;
 		determine_sys_state();
-		/*TODO: Add shutdown code here??*/
 	}
 	//restore interrupts
 	sei();
@@ -171,7 +172,7 @@ void init_system_cntl(void)
 	sei();
 	//Configure system control pin as input
 	DDR(SYS_CNTL_PORT) &= ~(1 << SYS_CNTL); 
-	//Enable pin change interrupts on PortA
+	//Enable pin change interrupts on PortC
 	PCICR |= (1 << PCIE2);
 	//Eanble pin change interrupt for Enable input
 	PCMSK2 |= (1 << PCINT19);

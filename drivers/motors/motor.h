@@ -16,16 +16,16 @@
 #include <stdint.h>
 
 /*Translational Motor Port Locations*/
-#define TRANS_MOTOR_PWM_PORT D
-#define TRANS_MOTOR_DIR_PORT D
-#define TRANS_MOTOR_PWM_POS  7 //OC2A
-#define TRANS_MOTOR_DIR_POS  2
-
-/*Rotational Motor Port Locations*/
 #define ROTAT_MOTOR_PWM_PORT D
 #define ROTAT_MOTOR_DIR_PORT D
-#define ROTAT_MOTOR_PWM_POS  6 //OC2B
-#define ROTAT_MOTOR_DIR_POS  3
+#define ROTAT_MOTOR_PWM_POS  7 //OC2A
+#define ROTAT_MOTOR_DIR_POS  2
+
+/*Rotational Motor Port Locations*/
+#define TRANS_MOTOR_PWM_PORT D
+#define TRANS_MOTOR_DIR_PORT D
+#define TRANS_MOTOR_PWM_POS  6 //OC2B
+#define TRANS_MOTOR_DIR_POS  3
 
 /***************************************************************
  *

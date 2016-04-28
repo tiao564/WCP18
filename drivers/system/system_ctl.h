@@ -27,6 +27,7 @@
 #define SYS_OFF_STATE 				0  // System Shutdown	   
 #define SYS_ENABLE_STATE			1  // System Activate
 #define SYS_MANUAL_OVERRIDE_STATE  -1  // System Emergency Shutdown 
+#define SYS_UNRECOGNIZED_STATE	   -2  // Unrecognized Input State
 
 /********************************************
  * 		      Function Prototypes           *

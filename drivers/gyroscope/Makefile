@@ -26,13 +26,13 @@ default: $(EXE)
 
 all: program
 
-INCS = -I../i2c \
+INCS = -I../i2c_lib \
        -I. \
-	   -I../lcd \
+	   -I../lcd_driver \
 
-SRCS = ../i2c \
+SRCS = ../i2c_lib \
        . \
-	   ../lcd\
+	   ../lcd_driver \
 
 #VPATH will extract dependencies from the
 #listed source directories automatically	   

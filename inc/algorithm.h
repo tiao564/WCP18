@@ -51,11 +51,13 @@
 #define DUTY_CYCLE 128
 
 //Encoder limit (6" count)
-#define SIX_INCHES 200
+#define SIX_INCHES 35000
 //ultrasonic limits 
-#define LOWER_US_LIMIT -17
-#define UPPER_US_LIMIT 17
+#define LOWER_US_LIMIT -16.13
+#define UPPER_US_LIMIT 16.13
 
+#define INITIAL_LOWER_US_LIMIT -8.06
+#define INITIAL_UPPER_US_LIMIT 8.06
 //accelerometer limits
 #define ACCEL_LOWER -5
 #define ACCEL_UPPER 5
@@ -69,7 +71,7 @@ bool initialize(void);
 
 //Fetches the data from the two ultrasonic sensors and compares the values against predetermined limits
 //Returns a logic 1 if the data is within limits, 0 if it fails
-bool check_obstacle_sensors(void);
+bool check_obstacle_sensors(bool initial);
 
 //Sets LED pins as outputs and Enable pin as input
 //Busy waits for enable signal, doesn't exit until it receives it 
@@ -89,7 +91,7 @@ void stop_motors(void);
 
 //Checks accelerometer, gyroscope and vibration sensors to see if any has been triggered or in unsafe range
 //Returns 1 if no errors, 0 if triggers
-bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans);
+bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans,bool initial);
 
 //Checks acclerometer values against limits to return to check_encoder_sensors().
 //1 if in range, 0 if out or read error 

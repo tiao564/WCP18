@@ -18,7 +18,7 @@
 #include <avr/interrupt.h>
 
 //Accounts for different height 
-#define PING_OFFSET 2.75
+#define PING_OFFSET 8.89
 //Look at algorithm.h for function descriptions
 void stop_motors(void)
 {
@@ -90,17 +90,25 @@ void disable(bool code)
 	disable_vibration_sensors();
 }
 
-bool check_obstacle_sensors(void)
+bool check_obstacle_sensors(bool initial)
 {
 	accum distance_A,distance_B;
 	//Get distances of the two ultrasonic sensors
 	distance_A = get_obstacle_distance_cm(A) - PING_OFFSET;
 	distance_B = get_obstacle_distance_cm(B);
-	
+	if(initial == OFF)
+	{
 	//If either sensors timesout or is not in range, return a 0. If both in range, then return a 1
-	if((distance_A == ULTRASONIC_TIMEOUT || distance_B == ULTRASONIC_TIMEOUT) || (distance_A < LOWER_US_LIMIT) || (distance_A > UPPER_US_LIMIT) || (distance_B < LOWER_US_LIMIT) || (distance_B > UPPER_US_LIMIT))
-		return OBSTACLE_SENSOR_FAIL;
-	return OBSTACLE_SENSOR_SUCCESS;
+		if((distance_A == ULTRASONIC_TIMEOUT || distance_B == ULTRASONIC_TIMEOUT) || (distance_A < LOWER_US_LIMIT) || (distance_A > UPPER_US_LIMIT) || (distance_B < LOWER_US_LIMIT) || (distance_B > UPPER_US_LIMIT))
+			return OBSTACLE_SENSOR_FAIL;
+		return OBSTACLE_SENSOR_SUCCESS;
+	}
+	else
+	{
+		if((distance_A == ULTRASONIC_TIMEOUT || distance_B == ULTRASONIC_TIMEOUT) || (distance_A < INITIAL_LOWER_US_LIMIT) || (distance_A > INITIAL_UPPER_US_LIMIT) || (distance_B < INITIAL_LOWER_US_LIMIT) || (distance_B > INITIAL_UPPER_US_LIMIT))
+			return OBSTACLE_SENSOR_FAIL;
+		return OBSTACLE_SENSOR_SUCCESS;
+	}
 }
 
 void start_motors_down(void)
@@ -159,11 +167,18 @@ bool check_encoders(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint1
 	return COMPLETE;
 }
 
-bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans)
+bool check_encoder_sensors(uint16_t prev_rotat,uint16_t rotat,uint16_t prev_trans,uint16_t trans, bool initial)
 {
+	bool obstacle_chk = OFF;
+	if(initial == ON)
+		obstacle_chk = check_obstacle_sensors(ON);
+	else
+		obstacle_chk = check_obstacle_sensors(OFF);
+
 	//takes info from other checks and gives an error if any encoder or sensor fails 
 	bool encoder_chk = check_encoders(prev_rotat,rotat,prev_trans,trans);
-	if((encoder_chk == ERROR) || (check_obstacle_sensors() == OBSTACLE_SENSOR_FAIL) || (check_gyro() == ERROR) || check_vs_med_a() || check_vs_med_b() || check_vs_slow_a() || check_vs_slow_b() || (check_accel() == ERROR))
+
+	if((encoder_chk == ERROR) || (obstacle_chk == OBSTACLE_SENSOR_SUCCESS) ||  (check_gyro() == ERROR) || check_vs_med_a() || check_vs_med_b() || check_vs_slow_a() || check_vs_slow_b() || (check_accel() == ERROR))
 		return ERROR;
 	return COMPLETE;
 }

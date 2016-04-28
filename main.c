@@ -38,6 +38,7 @@ int main()
 		//return of  check_encoder_sensors(), tells if a sensor was not in range
 		bool sensor_chk;
 
+		bool encoder_chk;
 		//Encoder counts
 		uint16_t curr_rotat_cnt = 0;
 		uint16_t curr_trans_cnt = 0;
@@ -56,7 +57,7 @@ int main()
 			while(exit_code != ERROR && complete_flag != ON && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 			{
 				//Checks if it is able to start digging
-				sensor_chk = check_encoder_sensors(0,1,0,1);
+				sensor_chk = check_encoder_sensors(0,1,0,1,ON);
 				if(sensor_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 				{
 					//Turn on error/override light, and set error code
@@ -89,7 +90,7 @@ int main()
 						curr_trans_cnt = get_trans_encoder_cnt();
 
 						//Checks all the sensors for any error conditions 
-						sensor_chk = check_encoder_sensors(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
+						sensor_chk = check_encoder_sensors(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt,OFF);
 						
 						
 						//if error sensed or override signal received, stop motors, save encoder counts and get out of downward motion
@@ -133,10 +134,13 @@ int main()
 					//Begin six inch lift
 					while(curr_trans_cnt< SIX_INCHES && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 					{
+						prev_trans_cnt = curr_trans_cnt;
+						prev_rotat_cnt = curr_rotat_cnt;
 						curr_trans_cnt = get_trans_encoder_cnt();
-						
+						curr_rotat_cnt = get_rotat_encoder_cnt();
+						encoder_chk = check_encoders(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
 						//if override signal recevied, save encoder count, turn off motors and switch complete LED to manual override/error LED, break out of upward motion loop
-						if(get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
+						if(encoder_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
 						{
 							stop_motors();
 							error_trans_cnt = get_trans_encoder_cnt();
@@ -166,14 +170,25 @@ int main()
 			//Set error LED
 			PORTA |= (1 << LED_ERROR_POS);
 			clear_encoders();
-			curr_trans_cnt = 0;
 			start_motors_up();
 			motor_flag = MOTOR_ON;
 			//Upward drilling and no manual override
-			//If manual override received here, then drilling exits completely
+			//If manual override received here or motors stop spinning,  then drilling exits completely
 			while(curr_trans_cnt < error_trans_cnt && get_sys_cntl_state() != SYS_MANUAL_OVERRIDE_STATE)
 			{
-				curr_trans_cnt = get_trans_encoder_cnt();
+					prev_trans_cnt = curr_trans_cnt;
+					prev_rotat_cnt = curr_rotat_cnt;
+					curr_trans_cnt = get_trans_encoder_cnt();
+					curr_rotat_cnt = get_rotat_encoder_cnt();
+					encoder_chk = check_encoders(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
+					if(encoder_chk == ERROR || get_sys_cntl_state() == SYS_MANUAL_OVERRIDE_STATE)
+					{
+						stop_motors();
+						stop_encoders();
+						clear_encoders();
+						disable(exit_code);
+						return 0;
+					}
 			}
 			stop_motors();
 			motor_flag = MOTOR_OFF;
@@ -199,14 +214,27 @@ int main()
 			//No kill signal received, lift drill out 
 			else
 			{
-				curr_trans_cnt = 0;
+				clear_encoders();
 				motor_flag = MOTOR_ON;
 				start_motors_up();
 				
 				//Counts up to saved count 
+				//If motors stop spinning, then program exits completely
 				while(curr_trans_cnt < error_trans_cnt)
 				{
+					prev_trans_cnt = curr_trans_cnt;
+					prev_rotat_cnt = curr_rotat_cnt;
 					curr_trans_cnt = get_trans_encoder_cnt();
+					curr_rotat_cnt = get_rotat_encoder_cnt();
+					encoder_chk = check_encoders(prev_rotat_cnt,curr_rotat_cnt,prev_trans_cnt,curr_trans_cnt);
+					if(encoder_chk == ERROR)
+					{
+						stop_motors();
+						stop_encoders();
+						clear_encoders();
+						disable(exit_code);
+						return 0;
+					}
 				}
 
 				//Stops motors, sends error code and disables

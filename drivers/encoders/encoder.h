@@ -13,8 +13,14 @@
 #ifndef ENCODER_H_
 #define ENCODER_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdint.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Translation Motor Encoder Ports*/
 #define TRANS_ENCODER_A_PORT D
 #define TRANS_ENCODER_B_PORT D
@@ -27,6 +33,10 @@
 #define ROTAT_ENCODER_A_POS  0
 #define ROTAT_ENCODER_B_POS  1
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

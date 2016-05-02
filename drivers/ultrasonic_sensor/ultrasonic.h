@@ -13,8 +13,14 @@
 #ifndef ULTRASONIC_H_
 #define ULTRASONIC_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdfix.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Ultrasonic Sensor A Port Definitions*/
 #define TRIGGER_A_PORT A
 #define ECHO_A_PORT    A
@@ -30,9 +36,16 @@
 /*Ultrasonic Sensor Error Code*/
 #define ULTRASONIC_TIMEOUT 0
 
+/********************************************
+ * 		         Typedefs                   *
+ ********************************************/
 /*Sensor Identifiers*/
 typedef enum {A,B} sensor;
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

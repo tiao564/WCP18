@@ -17,9 +17,15 @@
 #ifndef GYROSCOPE_H_
 #define GYROSCOPE_H_	
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdbool.h>
 #include <stdfix.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Gyroscope Status Codes*/
 #define GYRO_INIT_FAIL  0
 #define GYRO_INIT_PASS  1
@@ -28,6 +34,9 @@
 #define GYRO_WRITE_FAIL	0
 #define GYRO_WRITE_PASS 1
 
+/********************************************
+ * 		          Typedefs                  *
+ ********************************************/
 /*Full-Scale Range Values*/
 typedef enum {
 	RANGE_245_DPS  = 245,
@@ -35,6 +44,9 @@ typedef enum {
 	RANGE_2000_DPS = 2000,
 }gyro_range;
 
+/********************************************
+ * 		          Structs                   *
+ ********************************************/
 /*Gyroscope Data Structure*/
 typedef struct {
 	accum x;
@@ -42,6 +54,10 @@ typedef struct {
 	accum z;
 }gyro_data;
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

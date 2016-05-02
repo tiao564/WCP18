@@ -13,8 +13,14 @@
 #ifndef MOTOR_H_
 #define MOTOR_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdint.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Translational Motor Port Locations*/
 #define ROTAT_MOTOR_PWM_PORT D
 #define ROTAT_MOTOR_DIR_PORT D
@@ -27,6 +33,10 @@
 #define TRANS_MOTOR_PWM_POS  6 //OC2B
 #define TRANS_MOTOR_DIR_POS  3
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

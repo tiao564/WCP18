@@ -10,12 +10,18 @@
  *
  **************************************************************/
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include "encoder.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <avr/interrupt.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Concatenation Macros*/
 #define CONCAT(A,B) (A##B)
 #define DDR(letter) CONCAT(DDR,letter)
@@ -42,6 +48,9 @@
 #define A 1
 #define B 0
 
+/********************************************
+ * 	          Global Variables              *
+ ********************************************/
 /*Variables to hold translation encoder values*/
 volatile uint8_t curr_trans_encoder = 0;
 volatile uint8_t prev_trans_encoder = 0;
@@ -51,7 +60,9 @@ volatile uint8_t curr_rotat_encoder = 0;
 volatile uint8_t prev_rotat_encoder = 0;
 volatile uint16_t rotat_encoder_cnt = 0;
 
-/*Static Function Prototypes*/
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static bool read_trans_encoder_a(void);
 static bool read_trans_encoder_b(void);
 static bool read_rotat_encoder_a(void);
@@ -103,31 +114,9 @@ static void set_curr_rotat_encoder_val(bool a, bool b)
 	if(b) curr_rotat_encoder |= (1 << B);
 }
 
-/* Encoder API */
-
-/*See encoder.h for details*/
-void init_encoders(void)
-{
-	sei();
-	/*Configure translation encoder ports as inputs*/
-	DDR(TRANS_ENCODER_A_PORT) &= ~(1 << TRANS_ENCODER_A_POS);
-	DDR(TRANS_ENCODER_B_PORT) &= ~(1 << TRANS_ENCODER_B_POS);
-	/*Configure rotational encoder ports as inputs*/
-	DDR(ROTAT_ENCODER_A_PORT) &= ~(1 << ROTAT_ENCODER_A_POS);
-	DDR(ROTAT_ENCODER_B_PORT) &= ~(1 << ROTAT_ENCODER_B_POS);
-	/*Set CTC mode*/
-	TCCR0A = ((TCCR0A & CLEAR) | (1 << WGM01));
-	TCCR0B = TCCR0B & CLEAR;
-	/*Set fixed encoder sampling rate*/
-	OCR0A = SAMPLING_RATE;
-}
-
-/*See encoder.h for details*/
-uint8_t get_sampling_rate(void)
-{
-	return OCR0A;
-}
-
+/********************************************
+ * 	     Interrupt Service Routines         *
+ ********************************************/
 /*ISR to sample the encoders at fixed intervals*/
 ISR(TIMER0_COMPA_vect)
 {
@@ -153,6 +142,32 @@ ISR(TIMER0_COMPA_vect)
 		rotat_encoder_cnt++;
 		prev_rotat_encoder = curr_rotat_encoder;
 	}
+}
+
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
+/*See encoder.h for details*/
+void init_encoders(void)
+{
+	sei();
+	/*Configure translation encoder ports as inputs*/
+	DDR(TRANS_ENCODER_A_PORT) &= ~(1 << TRANS_ENCODER_A_POS);
+	DDR(TRANS_ENCODER_B_PORT) &= ~(1 << TRANS_ENCODER_B_POS);
+	/*Configure rotational encoder ports as inputs*/
+	DDR(ROTAT_ENCODER_A_PORT) &= ~(1 << ROTAT_ENCODER_A_POS);
+	DDR(ROTAT_ENCODER_B_PORT) &= ~(1 << ROTAT_ENCODER_B_POS);
+	/*Set CTC mode*/
+	TCCR0A = ((TCCR0A & CLEAR) | (1 << WGM01));
+	TCCR0B = TCCR0B & CLEAR;
+	/*Set fixed encoder sampling rate*/
+	OCR0A = SAMPLING_RATE;
+}
+
+/*See encoder.h for details*/
+uint8_t get_sampling_rate(void)
+{
+	return OCR0A;
 }
 
 /*See encoder.h for details*/

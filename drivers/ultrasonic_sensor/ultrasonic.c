@@ -9,10 +9,13 @@
  *    are used to provide a timeout feature to the software. 
  *
  **************************************************************/
- 
+
 /*Processor Frequency*/
 #define F_CPU 8000000UL
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include "ultrasonic.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -21,6 +24,9 @@
 #include <stdfix.h>
 #include <util/delay.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Concatenation Macros*/
 #define CONCAT(A,B) (A##B)
 #define DDR(letter) CONCAT(DDR,letter)
@@ -54,6 +60,9 @@
 /*The speed of sound in centimeters/microsecond*/
 #define SPEED_SOUND 0.0343F
 
+/********************************************
+ * 	          Global Variables              *
+ ********************************************/
 /*Represents sensor in use*/
 static sensor curr_sensor_id;
 
@@ -66,7 +75,9 @@ volatile bool timeout = false;
 /*Width of pulse returned by sensor*/
 volatile uint16_t pulse_width = 0;
 
-/*Static Function Prototypes*/
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static void set_trigger_a(void);
 static void clear_trigger_a(void);
 static void set_trigger_b(void);
@@ -153,25 +164,9 @@ static accum us_to_cm(uint16_t time)
 	return (SPEED_SOUND * (accum)time);
 }
 
-/*See ultrasonic.h for details*/
-void init_ultrasonic_sensors(void)
-{
-	sei();
-	/*Enable pin change interrupts 7:0*/
-	PCICR |= (1 << PCIE0);
-	/*Enable timer overflow interrupts*/
-	TIMSK3 |= (1 << TOIE3);
-	/*Configure timer/counter3 to normal mode*/
-	TCCR3A &= ~((1 << WGM31) | (1 << WGM30));
-	TCCR3B &= ~((1 << WGM33) | (1 << WGM32));
-	/*Configure sensor1 ports*/
-	DDR(TRIGGER_A_PORT) |= (1 << TRIGGER_A_POS);
-	DDR(ECHO_A_PORT) &= ~(1 << ECHO_A_POS);
-	/*Configure sensor2 ports*/
-	DDR(TRIGGER_B_PORT) |= (1 << TRIGGER_B_POS);
-	DDR(ECHO_B_PORT) &= ~(1 << ECHO_B_POS);
-}
-
+/********************************************
+ * 	     Interrupt Service Routines         *
+ ********************************************/
 /*Determines the width of returned pulse*/
 ISR(PCINT0_vect)
 {	
@@ -196,6 +191,28 @@ ISR(PCINT0_vect)
 ISR(TIMER3_OVF_vect)
 {
 	timeout = true;
+}
+
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
+/*See ultrasonic.h for details*/
+void init_ultrasonic_sensors(void)
+{
+	sei();
+	/*Enable pin change interrupts 7:0*/
+	PCICR |= (1 << PCIE0);
+	/*Enable timer overflow interrupts*/
+	TIMSK3 |= (1 << TOIE3);
+	/*Configure timer/counter3 to normal mode*/
+	TCCR3A &= ~((1 << WGM31) | (1 << WGM30));
+	TCCR3B &= ~((1 << WGM33) | (1 << WGM32));
+	/*Configure sensor1 ports*/
+	DDR(TRIGGER_A_PORT) |= (1 << TRIGGER_A_POS);
+	DDR(ECHO_A_PORT) &= ~(1 << ECHO_A_POS);
+	/*Configure sensor2 ports*/
+	DDR(TRIGGER_B_PORT) |= (1 << TRIGGER_B_POS);
+	DDR(ECHO_B_PORT) &= ~(1 << ECHO_B_POS);
 }
 
 /*See ultrasonic.h for details*/
@@ -233,6 +250,9 @@ accum get_obstacle_distance_cm(sensor id)
 			return ULTRASONIC_TIMEOUT;
 		}
 	}
+	
+	/*Disable sensors when not in use*/
+	PCMSK0 &= CLEAR;
 	
 	/*Return the obstacle distince in cm*/
 	return us_to_cm(pulse_width);

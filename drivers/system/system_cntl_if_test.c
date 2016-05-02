@@ -14,6 +14,7 @@
 #define LED_A 0 //SYS_OFF_STATE LED
 #define LED_B 1 //SYS_ENABLE_STATE LED
 #define LED_C 2 //SYS_MANUAL_OVERRIDE_STATE LED
+#define LED_D 3 //SYS_UNRECOGNIZED_STATE LED
 
 //Mask to clear port
 #define CLEAR (0x00)
@@ -27,7 +28,7 @@ int main()
 	init_system_cntl();
 	
 	//Initialize LEDs
-	DDRA |= ((1 << LED_A) | (1 << LED_B) | (1 << LED_C));
+	DDRA |= ((1 << LED_A) | (1 << LED_B) | (1 << LED_C) | (1 << LED_D));
 	
 	while(1)
 	{
@@ -45,6 +46,10 @@ int main()
 			
 			case SYS_MANUAL_OVERRIDE_STATE:
 				PORTA = ((PORTA & CLEAR) | (1 << LED_C));
+				break;
+				
+			case SYS_UNRECOGNIZED_STATE:
+				PORTA = ((PORT & CLEAR) | (1 << LED_D));
 				break;
 			
 			default:

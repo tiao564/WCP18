@@ -17,9 +17,15 @@
 #ifndef ACCELEROMETER_H_
 #define ACCELEROMETER_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdfix.h>
 #include <stdbool.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Accelerometer Status Codes*/
 #define ACCEL_INIT_FAIL  0
 #define ACCEL_INIT_PASS  1
@@ -28,6 +34,9 @@
 #define ACCEL_WRITE_FAIL 0
 #define ACCEL_WRITE_PASS 1
 
+/********************************************
+ * 		          Structs                   *
+ ********************************************/
 /*Accelerometer Data Structure*/
 typedef struct {
 	accum x;
@@ -35,6 +44,10 @@ typedef struct {
 	accum z;
 }accel_data;
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

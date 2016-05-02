@@ -13,8 +13,14 @@
 #ifndef VIBRATION_H_
 #define VIBRATION_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <stdbool.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Medium Vibration Sensor A Port Locations*/
 #define MED_A_PORT B
 #define MED_A_POS  3
@@ -31,6 +37,10 @@
 #define SLOW_B_PORT B
 #define SLOW_B_POS  0
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

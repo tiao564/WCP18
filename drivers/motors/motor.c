@@ -9,11 +9,17 @@
  *    signal the hardware motor driver.
  *
  **************************************************************/
- 
+
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include <avr/io.h>
 #include <stdint.h>
 #include "motor.h"
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Concatentation Macros*/
 #define CONCAT(A,B) A##B
 #define DDR(letter) CONCAT(DDR,letter)
@@ -39,6 +45,9 @@
 #define TRANS_SAFETY_PWM 50//77  // ~30% --> 3.6V
 #define ROTAT_SAFETY_PWM 50//140 // ~55% --> 6.6V
 
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
 /*See motor.h for additional details*/
 void init_motor_drivers(void)
 {
@@ -52,38 +61,6 @@ void init_motor_drivers(void)
 	TCCR2A = ((TCCR2A & CLEAR) | (1 << WGM21) | (1 << WGM20));
 	/*Enable divide by 8 prescaler to reduce switching frequency*/
 	TCCR2B = ((TCCR2B & CLEAR) | (1 << CS21));
-}
-
-/** Translational Motor API **/
-
-/*See motor.h for additional details*/
-void set_translational_motor_speed(uint8_t speed)
-{
-	OCR2B = (speed < TRANS_SAFETY_PWM) ? TRANS_SAFETY_PWM : speed;
-}
-
-/*See motor.h for additional details*/
-void translational_motor_down(void)
-{
-	PORT(TRANS_MOTOR_DIR_PORT) &= ~(1 << TRANS_MOTOR_DIR_POS);
-	/*Enable Clear on Compare Match mode*/
-	TCCR2A |= (1 << COM2B1); 
-}
-
-/*See motor.h for additional details*/
-void translational_motor_up(void)
-{
-	PORT(TRANS_MOTOR_DIR_PORT) |= (1 << TRANS_MOTOR_DIR_POS);
-	/*Enable Clear on Compare Match mode*/
-	TCCR2A |= (1 << COM2B1);
-}
-
-/*See motor.h for additional details*/
-void brake_translational_motor(void)
-{
-	PORT(TRANS_MOTOR_DIR_PORT) &= ~(1 << TRANS_MOTOR_DIR_POS);
-	/*Disable PWM to stop motors*/
-	TCCR2A &= ~((1 << COM2B1) | (1 << COM2B0));
 }
 
 /** Rotational Motor API **/
@@ -116,6 +93,38 @@ void brake_rotational_motor(void)
 	PORT(ROTAT_MOTOR_DIR_PORT) &= ~(1 << ROTAT_MOTOR_DIR_POS);
 	/*Disable PWM to stop motors*/
 	TCCR2A &= ~((1 << COM2A1) | (1 << COM2A0));
+}
+
+/** Translational Motor API **/
+
+/*See motor.h for additional details*/
+void set_translational_motor_speed(uint8_t speed)
+{
+	OCR2B = (speed < TRANS_SAFETY_PWM) ? TRANS_SAFETY_PWM : speed;
+}
+
+/*See motor.h for additional details*/
+void translational_motor_down(void)
+{
+	PORT(TRANS_MOTOR_DIR_PORT) &= ~(1 << TRANS_MOTOR_DIR_POS);
+	/*Enable Clear on Compare Match mode*/
+	TCCR2A |= (1 << COM2B1); 
+}
+
+/*See motor.h for additional details*/
+void translational_motor_up(void)
+{
+	PORT(TRANS_MOTOR_DIR_PORT) |= (1 << TRANS_MOTOR_DIR_POS);
+	/*Enable Clear on Compare Match mode*/
+	TCCR2A |= (1 << COM2B1);
+}
+
+/*See motor.h for additional details*/
+void brake_translational_motor(void)
+{
+	PORT(TRANS_MOTOR_DIR_PORT) &= ~(1 << TRANS_MOTOR_DIR_POS);
+	/*Disable PWM to stop motors*/
+	TCCR2A &= ~((1 << COM2B1) | (1 << COM2B0));
 }
 
 /*See motor.h for additional details*/

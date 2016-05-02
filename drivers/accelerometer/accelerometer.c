@@ -11,13 +11,19 @@
  *     Kevin Townsend.
  *
  **************************************************************/
- 
+
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include "accelerometer.h"
 #include "i2c_lib.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <stdbool.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Device Address*/
 #define ACCEL_ADDR 0x19
 
@@ -68,7 +74,9 @@
 /*Acceleration due to Gravity*/
 #define GRAVITY (9.806F)
 
-/* Static Function Prototypes */
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static bool write_accel_reg(uint8_t reg, uint8_t value);
 static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n);
 
@@ -136,8 +144,9 @@ static bool write_accel_reg(uint8_t reg, uint8_t value)
 	return ACCEL_WRITE_FAIL;
 }
 
-/* Accelerometer API */
-
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
 /*See accelerometer_driver.h for details*/
 bool init_accel(void)
 {

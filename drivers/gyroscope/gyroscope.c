@@ -11,7 +11,10 @@
  *     Kevin Townsend.
  *
  **************************************************************/
- 
+
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include "gyroscope.h"
 #include "i2c_lib.h"
 #include <avr/io.h>
@@ -19,6 +22,9 @@
 #include <stdbool.h>
 #include <stdfix.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*Device Address*/
 #define GYRO_ADDR 0x6B
 
@@ -83,12 +89,17 @@
 #define Z_LO 4
 #define Z_HI 5
 
+/********************************************
+ * 	          Global Variables              *
+ ********************************************/
 /*Full-Scale Range Variable*/
 static gyro_range range;
 /*Auto-Ranging Variable*/
 static bool auto_range;
 
-/* Static Function Prototypes */
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static bool read_n_consec_regs(uint8_t *buff, uint8_t reg, uint8_t n);
 static bool write_gyro_reg(uint8_t reg, uint8_t value);
 static bool is_saturated(int16_t data);
@@ -159,8 +170,9 @@ static bool is_saturated(int16_t data)
 	return (((data > MAX_READING) || (data < MIN_READING)) ? true : false);
 }
 
-/* Gyroscope API */
-
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
 /*See gyro_driver.h for details*/
 void enable_autorange(void)
 {

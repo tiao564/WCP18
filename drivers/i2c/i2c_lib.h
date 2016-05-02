@@ -14,10 +14,16 @@
 #ifndef I2C_LIB_H_
 #define I2C_LIB_H_
 
+/********************************************
+ * 		          Includes                  *
+ ********************************************/
 #include <avr/io.h>
 #include <stdint.h>
 #include <stdbool.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 /*TWI Status Codes*/
 #define START_ACK   	   0x08
 #define REPEATED_START_ACK 0x10
@@ -27,6 +33,9 @@
 #define MR_DATA_ACK 	   0x50
 #define MR_DATA_NACK	   0x58
 
+/********************************************
+ * 		         Typedefs                   *
+ ********************************************/
 /*I2C Error Codes*/
 typedef enum {
 	ENTRY_ERR,
@@ -39,6 +48,10 @@ typedef enum {
 	MR_REENTRY_ERR,
 }i2c_err;
 
+/********************************************
+ * 		      Function Prototypes           *
+ ********************************************/
+ 
 /***************************************************************
  *
  * DESCRIPTION:

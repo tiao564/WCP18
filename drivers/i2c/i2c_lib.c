@@ -8,14 +8,19 @@
  *
  **************************************************************/
  
+/********************************************
+ * 		          Includes                  *
+ ********************************************/
 #include <avr/io.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include "i2c_lib.h"
 
-/*Bit Rate Register value
- *Assumes 8MHz system clock!*/
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
+/*Bit Rate Register value. Assumes 8MHz system clock!*/
 #define BIT_RATE 0x20 //32 --> 100KHz (Standard Mode)
 
 /*TWI Status Register Pre-scaler bits*/
@@ -50,7 +55,9 @@
 #define REPEATED_START 	  1
 #define NO_REPEATED_START 0
 
-/* Static Function Prototypes */
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static void send_start_cond(void);
 static void send_stop_cond(void);
 static void send_repeated_start(void);
@@ -153,8 +160,9 @@ static i2c_err init_master_mode(uint8_t slave_addr, bool rw)
 	return ENTRY_PASS;
 }
 
-/* API Functions */
-
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
 /*See i2c_lib.h for details*/
 void init_i2c(void)
 {

@@ -12,7 +12,7 @@
  **************************************************************/
 
 /********************************************
-* 	              Includes                  *
+ * 	              Includes                  *
  ********************************************/
 #include "system_ctl.h"
 #include <avr/io.h>
@@ -21,7 +21,7 @@
 #include <stdbool.h>
 
 /********************************************
-* 		           Macros                   *
+ * 		           Macros                   *
  ********************************************/
 /*Concatenation Macros*/
 #define CONCAT(A,B) (A##B)
@@ -34,7 +34,7 @@
 /*System Control Input Pin Location*/
 #define SYS_CNTL 3
 
-/*Pin Change Interrupt PortA*/
+/*Pin Change Interrupt PortC*/
 #define PCIE2 2
 
 /*Pin Change Interrupt 19*/
@@ -71,7 +71,7 @@
 #define SYS_MANUAL_OVERRIDE_LOWER (SYS_MANUAL_OVERRIDE - TOLERANCE)
 
 /********************************************
-* 	          Global Variables              *
+ * 	          Global Variables              *
  ********************************************/
 /*Store Width of System Control Input Pulse*/
 volatile uint16_t sys_ctl_pulse_width = 0;
@@ -128,7 +128,7 @@ ISR(PCINT2_vect)
 		stop_counter();
 		sys_ctl_pulse_width = TCNT1;
 		data_ready = true;
-	}
+	}  
 	
 	//restore interrupts
 	sei();
@@ -155,9 +155,12 @@ void init_system_cntl(void)
 /*See system_ctl.h for details*/
 int8_t get_sys_cntl_state(void)
 {
-	int8_t sys_cntl_state;
+	int8_t sys_cntl_state = SYS_UNRECOGNIZED_STATE;
 	//Wait for new input to be read
 	while(!data_ready);
+	
+	//Disable interrupts
+	cli();
 
 	//Enter Shutdown State
 	if((sys_ctl_pulse_width >= SYS_OFF_LOWER) &&
@@ -185,6 +188,9 @@ int8_t get_sys_cntl_state(void)
 	{
 		sys_cntl_state = SYS_UNRECOGNIZED_STATE;
 	}
+	
+	//restore interrupts
+	sei();
 
 	return sys_cntl_state;
 }	

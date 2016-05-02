@@ -10,12 +10,18 @@
  *
  **************************************************************/
  
+/********************************************
+ * 		          Includes                  *
+ ********************************************/ 
 #include "vibration.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
+/********************************************
+ * 		           Macros                   *
+ ********************************************/
 #define CONCAT(A,B) (A##B)
 #define DDR(letter) CONCAT(DDR,letter)
 #define PIN(letter) CONCAT(PIN,letter)
@@ -35,10 +41,15 @@
 #define SLOW_A_FLAG 1
 #define SLOW_B_FLAG 0
 
+/********************************************
+ * 	          Global Variables              *
+ ********************************************/
 /*Vibration Sensor Status Variable*/
 volatile uint8_t vibration_status = 0;
 
-/*Static Function Prototypes*/
+/********************************************
+ * 	    Static Function Prototypes          *
+ ********************************************/
 static void set_med_a_flag(void);
 static void set_med_b_flag(void);
 static void set_slow_a_flag(void);
@@ -124,6 +135,25 @@ static void clear_slow_b_flag(void)
 	vibration_status &= ~(1 << SLOW_B_FLAG);
 }
 
+/********************************************
+ * 	     Interrupt Service Routines         *
+ ********************************************/
+/*Sets flags in status variable if a vibration sensor trips*/
+ISR(PCINT1_vect)
+{
+	/*Check Medium A vibration sensor*/
+	if(get_med_a()) set_med_a_flag();
+	/*Check Medium B vibration sensor*/
+	if(get_med_b()) set_med_b_flag();
+	/*Check Slow A vibration sensor*/
+	if(get_slow_a()) set_slow_a_flag();
+	/*Check Slow B vibration sensor*/
+	if(get_slow_b()) set_slow_b_flag();
+}
+
+/********************************************
+ * 		        API Functions               *
+ ********************************************/
 /*See vibration.h for details*/
 void init_vibration_sensors(void)
 {
@@ -137,19 +167,6 @@ void init_vibration_sensors(void)
 	PCICR |= (1 << PCIE1);
 	/*Enable vibration sensors to trigger interrupts*/
 	PCMSK1 |= ((1 << PCINT11) | (1 << PCINT10) | (1 << PCINT9) | (1 << PCINT8));
-}
-
-/*Sets flags in status variable if a vibration sensor trips*/
-ISR(PCINT1_vect)
-{
-	/*Check Medium A vibration sensor*/
-	if(get_med_a()) set_med_a_flag();
-	/*Check Medium B vibration sensor*/
-	if(get_med_b()) set_med_b_flag();
-	/*Check Slow A vibration sensor*/
-	if(get_slow_a()) set_slow_a_flag();
-	/*Check Slow B vibration sensor*/
-	if(get_slow_b()) set_slow_b_flag();
 }
 
 /*See vibration.h for details*/
